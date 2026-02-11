@@ -13,6 +13,7 @@ export default function Home() {
     <div className="flex h-screen flex-col overflow-hidden">
       <AppHeader
         selectedType={editor.selectedType}
+        editingGlobal={editor.editingGlobal}
         onTypeChange={editor.changeType}
         onExport={editor.exportHtml}
         onCopy={editor.copyHtml}
@@ -21,22 +22,25 @@ export default function Home() {
       <div className="flex flex-1 overflow-hidden">
         <TemplateSidebar
           selectedType={editor.selectedType}
+          editingGlobal={editor.editingGlobal}
           onTypeChange={editor.changeType}
+          onEditGlobal={editor.editGlobal}
           variantCounts={editor.variantCounts}
         />
 
         <PreviewCanvas
-          html={editor.currentTemplate.html}
+          html={editor.editingGlobal ? editor.globalTemplate.html : editor.composedHtml}
           device={editor.device}
           onDeviceChange={editor.setDevice}
         />
 
         <EditorPanel
           selectedType={editor.selectedType}
+          editingGlobal={editor.editingGlobal}
           subject={editor.currentTemplate.subject}
-          html={editor.currentTemplate.html}
+          html={editor.editingGlobal ? editor.globalTemplate.html : editor.currentTemplate.bodyHtml}
           onSubjectChange={editor.setSubject}
-          onHtmlChange={editor.setHtml}
+          onHtmlChange={editor.editingGlobal ? editor.setGlobalHtml : editor.setBodyHtml}
           variants={editor.currentTemplate.variants}
           activeVariantId={editor.activeVariantId}
           onVariantSelect={editor.selectVariant}

@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
@@ -15,17 +14,20 @@ import {
 import { CodeEditor } from "@/components/editor/code-editor";
 import { supabaseVariables } from "@/lib/mock-data";
 import type { TemplateType, TemplateVariant } from "@/lib/types";
+import { BODY_PLACEHOLDER } from "@/lib/types";
 import {
   Copy,
   Check,
   Plus,
   CopyPlus,
   Trash2,
+  Info,
 } from "lucide-react";
 import { useState } from "react";
 
 interface EditorPanelProps {
   selectedType: TemplateType;
+  editingGlobal: boolean;
   subject: string;
   html: string;
   onSubjectChange: (subject: string) => void;
@@ -40,6 +42,7 @@ interface EditorPanelProps {
 
 export function EditorPanel({
   selectedType,
+  editingGlobal,
   subject,
   html,
   onSubjectChange,
@@ -53,14 +56,92 @@ export function EditorPanel({
 }: EditorPanelProps) {
   const [copiedVar, setCopiedVar] = useState<string | null>(null);
 
-  const filteredVars = supabaseVariables.filter((v) =>
-    v.availableFor.includes(selectedType)
-  );
+  const filteredVars = editingGlobal
+    ? supabaseVariables
+    : supabaseVariables.filter((v) => v.availableFor.includes(selectedType));
 
   function copyVariable(syntax: string) {
     navigator.clipboard.writeText(syntax);
     setCopiedVar(syntax);
     setTimeout(() => setCopiedVar(null), 1500);
+  }
+
+  if (editingGlobal) {
+    return (
+      <div className="flex h-full w-[420px] shrink-0 flex-col border-l bg-white">
+        <Tabs defaultValue="edit" className="flex h-full flex-col">
+          <div className="border-b px-4">
+            <TabsList className="h-10 w-full justify-start gap-2 bg-transparent p-0">
+              <TabsTrigger
+                value="edit"
+                className="h-10 rounded-none border-b-2 border-transparent px-3 pb-2.5 pt-2.5 text-xs font-medium data-[state=active]:border-foreground data-[state=active]:shadow-none"
+              >
+                Edit
+              </TabsTrigger>
+              <TabsTrigger
+                value="variables"
+                className="h-10 rounded-none border-b-2 border-transparent px-3 pb-2.5 pt-2.5 text-xs font-medium data-[state=active]:border-foreground data-[state=active]:shadow-none"
+              >
+                Variables
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          <TabsContent value="edit" className="flex-1 flex flex-col mt-0 overflow-hidden">
+            <div className="px-4 py-3 border-b">
+              <div className="flex items-start gap-2 rounded-md bg-blue-50 p-2.5 text-[12px] leading-relaxed text-blue-700">
+                <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                <span>
+                  This is the shared email wrapper. Use <code className="rounded bg-blue-100 px-1 font-mono text-[11px]">{BODY_PLACEHOLDER}</code> as the placeholder where each template&apos;s body content will be inserted.
+                </span>
+              </div>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <CodeEditor value={html} onChange={onHtmlChange} />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="variables" className="flex-1 mt-0 overflow-hidden">
+            <ScrollArea className="h-full">
+              <div className="p-4 space-y-1">
+                {filteredVars.map((v) => (
+                  <div
+                    key={v.name}
+                    className="flex items-start gap-3 rounded-md p-3 hover:bg-muted transition-colors group"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <code className="text-xs font-mono font-medium text-foreground">
+                        {v.syntax}
+                      </code>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground leading-relaxed">
+                        {v.description}
+                      </p>
+                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => copyVariable(v.syntax)}
+                        >
+                          {copiedVar === v.syntax ? (
+                            <Check className="h-3.5 w-3.5 text-emerald-500" />
+                          ) : (
+                            <Copy className="h-3.5 w-3.5" />
+                          )}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy syntax</TooltipContent>
+                    </Tooltip>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+        </Tabs>
+      </div>
+    );
   }
 
   return (

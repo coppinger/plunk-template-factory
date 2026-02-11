@@ -3,7 +3,9 @@ import type {
   TemplateTypeInfo,
   SupabaseVariable,
   EmailTemplate,
+  GlobalTemplate,
 } from "./types";
+import { BODY_PLACEHOLDER } from "./types";
 
 export const templateTypes: TemplateTypeInfo[] = [
   {
@@ -172,13 +174,13 @@ export const supabaseVariables: SupabaseVariable[] = [
   },
 ];
 
-function emailWrapper(title: string, body: string): string {
-  return `<!DOCTYPE html>
+export const defaultGlobalTemplate: GlobalTemplate = {
+  html: `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title}</title>
+  <title>Email</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f4f4f5;">
@@ -200,7 +202,7 @@ function emailWrapper(title: string, body: string): string {
           <!-- Body -->
           <tr>
             <td style="padding: 40px;">
-              ${body}
+              ${BODY_PLACEHOLDER}
             </td>
           </tr>
           <!-- Footer -->
@@ -217,8 +219,8 @@ function emailWrapper(title: string, body: string): string {
     </tr>
   </table>
 </body>
-</html>`;
-}
+</html>`,
+};
 
 const confirmSignUpBody = `<h1 style="margin: 0 0 8px; font-size: 24px; font-weight: 700; color: #18181b; letter-spacing: -0.02em;">
                 Confirm your email
@@ -372,90 +374,90 @@ export const emailTemplates: EmailTemplate[] = [
   {
     type: "confirm-signup",
     subject: "Confirm your email address",
-    html: emailWrapper("Confirm Sign Up", confirmSignUpBody),
+    bodyHtml: confirmSignUpBody,
     variants: [
       {
         id: "default",
         name: "Default",
         subject: "Confirm your email address",
-        html: emailWrapper("Confirm Sign Up", confirmSignUpBody),
+        bodyHtml: confirmSignUpBody,
       },
       {
         id: "minimal",
         name: "Minimal",
         subject: "Verify your email",
-        html: emailWrapper("Verify Email", confirmSignUpMinimalBody),
+        bodyHtml: confirmSignUpMinimalBody,
       },
       {
         id: "branded",
         name: "Branded",
         subject: "Welcome to YourApp - Confirm your email",
-        html: emailWrapper("Welcome", confirmSignUpBrandedBody),
+        bodyHtml: confirmSignUpBrandedBody,
       },
     ],
   },
   {
     type: "invite-user",
     subject: "You've been invited to join YourApp",
-    html: emailWrapper("Invitation", inviteUserBody),
+    bodyHtml: inviteUserBody,
     variants: [
       {
         id: "default",
         name: "Default",
         subject: "You've been invited to join YourApp",
-        html: emailWrapper("Invitation", inviteUserBody),
+        bodyHtml: inviteUserBody,
       },
     ],
   },
   {
     type: "magic-link",
     subject: "Your login link for YourApp",
-    html: emailWrapper("Magic Link", magicLinkBody),
+    bodyHtml: magicLinkBody,
     variants: [
       {
         id: "default",
         name: "Default",
         subject: "Your login link for YourApp",
-        html: emailWrapper("Magic Link", magicLinkBody),
+        bodyHtml: magicLinkBody,
       },
     ],
   },
   {
     type: "change-email",
     subject: "Confirm your email change",
-    html: emailWrapper("Change Email", changeEmailBody),
+    bodyHtml: changeEmailBody,
     variants: [
       {
         id: "default",
         name: "Default",
         subject: "Confirm your email change",
-        html: emailWrapper("Change Email", changeEmailBody),
+        bodyHtml: changeEmailBody,
       },
     ],
   },
   {
     type: "reset-password",
     subject: "Reset your password",
-    html: emailWrapper("Reset Password", resetPasswordBody),
+    bodyHtml: resetPasswordBody,
     variants: [
       {
         id: "default",
         name: "Default",
         subject: "Reset your password",
-        html: emailWrapper("Reset Password", resetPasswordBody),
+        bodyHtml: resetPasswordBody,
       },
     ],
   },
   {
     type: "reauthentication",
     subject: "Your verification code",
-    html: emailWrapper("Verification", reauthenticationBody),
+    bodyHtml: reauthenticationBody,
     variants: [
       {
         id: "default",
         name: "Default",
         subject: "Your verification code",
-        html: emailWrapper("Verification", reauthenticationBody),
+        bodyHtml: reauthenticationBody,
       },
     ],
   },

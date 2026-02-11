@@ -1,12 +1,18 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import type { TemplateType, TemplateVariant } from "@/lib/types";
-import { emailTemplates } from "@/lib/mock-data";
+import type { TemplateType, TemplateVariant, GlobalTemplate } from "@/lib/types";
+import { emailTemplates, defaultGlobalTemplate } from "@/lib/mock-data";
+import { composeEmail } from "@/lib/utils";
 
 export function useTemplateEditor() {
   const [selectedType, setSelectedType] = useState<TemplateType>("confirm-signup");
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
+  const [editingGlobal, setEditingGlobal] = useState(false);
+
+  const [globalTemplate, setGlobalTemplate] = useState<GlobalTemplate>(
+    () => ({ ...defaultGlobalTemplate })
+  );
 
   // Deep clone templates so we can mutate independently
   const [templates, setTemplates] = useState(() =>
@@ -40,6 +46,11 @@ export function useTemplateEditor() {
     [currentTemplate, activeVariantId]
   );
 
+  const composedHtml = useMemo(
+    () => composeEmail(globalTemplate.html, currentTemplate.bodyHtml),
+    [globalTemplate.html, currentTemplate.bodyHtml]
+  );
+
   const variantCounts = useMemo(() => {
     const counts: Partial<Record<TemplateType, number>> = {};
     for (const t of templates) {
@@ -48,16 +59,20 @@ export function useTemplateEditor() {
     return counts as Record<TemplateType, number>;
   }, [templates]);
 
-  const setHtml = useCallback(
-    (html: string) => {
+  const setGlobalHtml = useCallback((html: string) => {
+    setGlobalTemplate((prev) => ({ ...prev, html }));
+  }, []);
+
+  const setBodyHtml = useCallback(
+    (bodyHtml: string) => {
       setTemplates((prev) =>
         prev.map((t) => {
           if (t.type !== selectedType) return t;
           return {
             ...t,
-            html,
+            bodyHtml,
             variants: t.variants.map((v) =>
-              v.id === activeVariantId ? { ...v, html } : v
+              v.id === activeVariantId ? { ...v, bodyHtml } : v
             ),
           };
         })
@@ -92,7 +107,7 @@ export function useTemplateEditor() {
         setTemplates((prev) =>
           prev.map((t) => {
             if (t.type !== selectedType) return t;
-            return { ...t, html: variant.html, subject: variant.subject };
+            return { ...t, bodyHtml: variant.bodyHtml, subject: variant.subject };
           })
         );
       }
@@ -105,7 +120,7 @@ export function useTemplateEditor() {
     const newVariant: TemplateVariant = {
       id,
       name: `Variant ${currentTemplate.variants.length + 1}`,
-      html: activeVariant.html,
+      bodyHtml: activeVariant.bodyHtml,
       subject: activeVariant.subject,
     };
     setTemplates((prev) =>
@@ -125,7 +140,7 @@ export function useTemplateEditor() {
       const newVariant: TemplateVariant = {
         id,
         name: `${source.name} (Copy)`,
-        html: source.html,
+        bodyHtml: source.bodyHtml,
         subject: source.subject,
       };
       setTemplates((prev) =>
@@ -146,7 +161,7 @@ export function useTemplateEditor() {
       setTemplates((prev) =>
         prev.map((t) => {
           if (t.type !== selectedType) return t;
-          return { ...t, variants: remaining, html: remaining[0].html, subject: remaining[0].subject };
+          return { ...t, variants: remaining, bodyHtml: remaining[0].bodyHtml, subject: remaining[0].subject };
         })
       );
       if (activeVariantId === variantId) {
@@ -162,23 +177,34 @@ export function useTemplateEditor() {
   const changeType = useCallback(
     (type: TemplateType) => {
       setSelectedType(type);
+      setEditingGlobal(false);
     },
     []
   );
 
+  const editGlobal = useCallback(() => {
+    setEditingGlobal(true);
+  }, []);
+
   const copyHtml = useCallback(() => {
-    navigator.clipboard.writeText(currentTemplate.html);
-  }, [currentTemplate]);
+    if (editingGlobal) {
+      navigator.clipboard.writeText(globalTemplate.html);
+    } else {
+      navigator.clipboard.writeText(composedHtml);
+    }
+  }, [editingGlobal, globalTemplate.html, composedHtml]);
 
   const exportHtml = useCallback(() => {
-    const blob = new Blob([currentTemplate.html], { type: "text/html" });
+    const content = editingGlobal ? globalTemplate.html : composedHtml;
+    const filename = editingGlobal ? "base-template.html" : `${selectedType}-template.html`;
+    const blob = new Blob([content], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${selectedType}-template.html`;
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
-  }, [currentTemplate, selectedType]);
+  }, [editingGlobal, globalTemplate.html, composedHtml, selectedType]);
 
   return {
     selectedType,
@@ -189,7 +215,7 @@ export function useTemplateEditor() {
     activeVariantId,
     variantCounts,
     changeType,
-    setHtml,
+    setBodyHtml,
     setSubject,
     selectVariant,
     createVariant,
@@ -197,5 +223,11 @@ export function useTemplateEditor() {
     deleteVariant,
     copyHtml,
     exportHtml,
+    // Global template additions
+    editingGlobal,
+    editGlobal,
+    globalTemplate,
+    setGlobalHtml,
+    composedHtml,
   };
 }

@@ -6,6 +6,12 @@ export type TemplateType =
   | "reset-password"
   | "reauthentication";
 
+export const BODY_PLACEHOLDER = "<!-- BODY_CONTENT -->";
+
+export interface GlobalTemplate {
+  html: string; // Full HTML doc with <!-- BODY_CONTENT --> placeholder
+}
+
 export interface TemplateTypeInfo {
   id: TemplateType;
   label: string;
@@ -24,13 +30,13 @@ export interface SupabaseVariable {
 export interface TemplateVariant {
   id: string;
   name: string;
-  html: string;
+  bodyHtml: string;
   subject: string;
 }
 
 export interface EmailTemplate {
   type: TemplateType;
   subject: string;
-  html: string;
+  bodyHtml: string;
   variants: TemplateVariant[];
 }
