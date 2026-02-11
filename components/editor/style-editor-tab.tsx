@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import type { TemplateStyle } from "@/lib/types";
 import { DEFAULT_STYLE } from "@/lib/types";
 import { Info, RotateCcw } from "lucide-react";
@@ -25,7 +24,7 @@ function ColorField({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <Label className="text-xs text-muted-foreground w-[120px] shrink-0">
+      <Label className="text-xs text-muted-foreground/70 w-[120px] shrink-0">
         {label}
       </Label>
       <div className="flex items-center gap-1.5 flex-1">
@@ -33,12 +32,12 @@ function ColorField({
           type="color"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="h-7 w-7 shrink-0 cursor-pointer rounded border border-input p-0.5"
+          className="h-7 w-7 shrink-0 cursor-pointer rounded-md border border-border/50 bg-secondary p-0.5"
         />
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="h-7 text-xs font-mono flex-1"
+          className="h-7 text-xs font-mono flex-1 bg-secondary/50 border-border/50"
         />
       </div>
     </div>
@@ -56,13 +55,13 @@ function TextField({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <Label className="text-xs text-muted-foreground w-[120px] shrink-0">
+      <Label className="text-xs text-muted-foreground/70 w-[120px] shrink-0">
         {label}
       </Label>
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-7 text-xs flex-1"
+        className="h-7 text-xs flex-1 bg-secondary/50 border-border/50"
       />
     </div>
   );
@@ -70,7 +69,7 @@ function TextField({
 
 function SectionHeader({ title }: { title: string }) {
   return (
-    <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-2">
+    <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-2">
       {title}
     </p>
   );
@@ -80,8 +79,8 @@ export function StyleEditorTab({ style, onChange }: StyleEditorTabProps) {
   return (
     <ScrollArea className="h-full">
       <div className="p-4 space-y-5">
-        <div className="flex items-start gap-2 rounded-md bg-amber-50 p-2.5 text-[12px] leading-relaxed text-amber-700">
-          <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+        <div className="flex items-start gap-2 rounded-lg bg-amber-500/[0.06] border border-amber-500/10 p-2.5 text-[11px] leading-relaxed text-amber-300/80">
+          <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-amber-400/60" />
           <span>These styles apply to all templates and variants.</span>
         </div>
 
@@ -102,7 +101,7 @@ export function StyleEditorTab({ style, onChange }: StyleEditorTabProps) {
           </div>
         </div>
 
-        <Separator />
+        <div className="h-px bg-border/30" />
 
         {/* Colors */}
         <div>
@@ -131,7 +130,7 @@ export function StyleEditorTab({ style, onChange }: StyleEditorTabProps) {
           </div>
         </div>
 
-        <Separator />
+        <div className="h-px bg-border/30" />
 
         {/* Buttons */}
         <div>
@@ -155,7 +154,7 @@ export function StyleEditorTab({ style, onChange }: StyleEditorTabProps) {
           </div>
         </div>
 
-        <Separator />
+        <div className="h-px bg-border/30" />
 
         {/* Container */}
         <div>
@@ -169,7 +168,7 @@ export function StyleEditorTab({ style, onChange }: StyleEditorTabProps) {
           </div>
         </div>
 
-        <Separator />
+        <div className="h-px bg-border/30" />
 
         {/* Typography */}
         <div>
@@ -193,7 +192,7 @@ export function StyleEditorTab({ style, onChange }: StyleEditorTabProps) {
           </div>
         </div>
 
-        <Separator />
+        <div className="h-px bg-border/30" />
 
         {/* Footer */}
         <div>
@@ -212,12 +211,12 @@ export function StyleEditorTab({ style, onChange }: StyleEditorTabProps) {
           </div>
         </div>
 
-        <Separator />
+        <div className="h-px bg-border/30" />
 
         <Button
           variant="outline"
           size="sm"
-          className="w-full text-xs gap-1.5"
+          className="w-full text-xs gap-1.5 border-border/50 text-muted-foreground hover:text-foreground"
           onClick={() => onChange({ ...DEFAULT_STYLE })}
         >
           <RotateCcw className="h-3 w-3" />

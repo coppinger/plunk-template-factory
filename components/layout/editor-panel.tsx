@@ -28,6 +28,9 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+const tabTriggerClass =
+  "h-10 rounded-none border-b-2 border-transparent px-3 pb-2.5 pt-2.5 text-[11px] font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-colors duration-150";
+
 interface EditorPanelProps {
   selectedType: TemplateType;
   editingGlobal: boolean;
@@ -75,38 +78,29 @@ export function EditorPanel({
 
   if (editingGlobal) {
     return (
-      <div className="flex h-full w-[520px] shrink-0 flex-col border-l bg-white">
+      <div className="flex h-full w-[520px] shrink-0 flex-col border-l border-border/50 bg-[#111114]">
         <Tabs defaultValue="edit" className="flex h-full flex-col">
-          <div className="border-b px-4">
-            <TabsList className="h-10 w-full justify-start gap-2 bg-transparent p-0">
-              <TabsTrigger
-                value="edit"
-                className="h-10 rounded-none border-b-2 border-transparent px-3 pb-2.5 pt-2.5 text-xs font-medium data-[state=active]:border-foreground data-[state=active]:shadow-none"
-              >
+          <div className="border-b border-border/50 px-4">
+            <TabsList className="h-10 w-full justify-start gap-1 bg-transparent p-0">
+              <TabsTrigger value="edit" className={tabTriggerClass}>
                 Edit
               </TabsTrigger>
-              <TabsTrigger
-                value="style"
-                className="h-10 rounded-none border-b-2 border-transparent px-3 pb-2.5 pt-2.5 text-xs font-medium data-[state=active]:border-foreground data-[state=active]:shadow-none gap-1"
-              >
+              <TabsTrigger value="style" className={`${tabTriggerClass} gap-1`}>
                 <Palette className="h-3 w-3" />
                 Style
               </TabsTrigger>
-              <TabsTrigger
-                value="variables"
-                className="h-10 rounded-none border-b-2 border-transparent px-3 pb-2.5 pt-2.5 text-xs font-medium data-[state=active]:border-foreground data-[state=active]:shadow-none"
-              >
+              <TabsTrigger value="variables" className={tabTriggerClass}>
                 Variables
               </TabsTrigger>
             </TabsList>
           </div>
 
           <TabsContent value="edit" className="flex-1 flex flex-col mt-0 overflow-hidden">
-            <div className="px-4 py-3 border-b">
-              <div className="flex items-start gap-2 rounded-md bg-blue-50 p-2.5 text-[12px] leading-relaxed text-blue-700">
-                <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+            <div className="px-4 py-3 border-b border-border/50">
+              <div className="flex items-start gap-2 rounded-lg bg-sky-500/[0.06] border border-sky-500/10 p-2.5 text-[11px] leading-relaxed text-sky-300/80">
+                <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-sky-400/60" />
                 <span>
-                  This is the shared email wrapper. Use <code className="rounded bg-blue-100 px-1 font-mono text-[11px]">{BODY_PLACEHOLDER}</code> as the placeholder where each template&apos;s body content will be inserted.
+                  This is the shared email wrapper. Use <code className="rounded bg-sky-500/10 px-1 font-mono text-[10px] text-sky-300">{BODY_PLACEHOLDER}</code> as the placeholder where each template&apos;s body content will be inserted.
                 </span>
               </div>
             </div>
@@ -127,13 +121,13 @@ export function EditorPanel({
                 {filteredVars.map((v) => (
                   <div
                     key={v.name}
-                    className="flex items-start gap-3 rounded-md p-3 hover:bg-muted transition-colors group"
+                    className="flex items-start gap-3 rounded-lg p-3 hover:bg-accent transition-colors duration-150 group"
                   >
                     <div className="flex-1 min-w-0">
-                      <code className="text-xs font-mono font-medium text-foreground">
+                      <code className="text-xs font-mono font-medium text-foreground/90">
                         {v.syntax}
                       </code>
-                      <p className="mt-0.5 text-[11px] text-muted-foreground leading-relaxed">
+                      <p className="mt-0.5 text-[11px] text-muted-foreground/60 leading-relaxed">
                         {v.description}
                       </p>
                     </div>
@@ -146,7 +140,7 @@ export function EditorPanel({
                           onClick={() => copyVariable(v.syntax)}
                         >
                           {copiedVar === v.syntax ? (
-                            <Check className="h-3.5 w-3.5 text-emerald-500" />
+                            <Check className="h-3.5 w-3.5 text-emerald-400" />
                           ) : (
                             <Copy className="h-3.5 w-3.5" />
                           )}
@@ -165,29 +159,20 @@ export function EditorPanel({
   }
 
   return (
-    <div className="flex h-full w-[520px] shrink-0 flex-col border-l bg-white">
+    <div className="flex h-full w-[520px] shrink-0 flex-col border-l border-border/50 bg-[#111114]">
       <Tabs defaultValue="edit" className="flex h-full flex-col">
-        <div className="border-b px-4">
-          <TabsList className="h-10 w-full justify-start gap-2 bg-transparent p-0">
-            <TabsTrigger
-              value="edit"
-              className="h-10 rounded-none border-b-2 border-transparent px-3 pb-2.5 pt-2.5 text-xs font-medium data-[state=active]:border-foreground data-[state=active]:shadow-none"
-            >
+        <div className="border-b border-border/50 px-4">
+          <TabsList className="h-10 w-full justify-start gap-1 bg-transparent p-0">
+            <TabsTrigger value="edit" className={tabTriggerClass}>
               Edit
             </TabsTrigger>
-            <TabsTrigger
-              value="variables"
-              className="h-10 rounded-none border-b-2 border-transparent px-3 pb-2.5 pt-2.5 text-xs font-medium data-[state=active]:border-foreground data-[state=active]:shadow-none"
-            >
+            <TabsTrigger value="variables" className={tabTriggerClass}>
               Variables
             </TabsTrigger>
-            <TabsTrigger
-              value="variants"
-              className="h-10 rounded-none border-b-2 border-transparent px-3 pb-2.5 pt-2.5 text-xs font-medium data-[state=active]:border-foreground data-[state=active]:shadow-none"
-            >
+            <TabsTrigger value="variants" className={tabTriggerClass}>
               Variants
               {variants.length > 1 && (
-                <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-[10px]">
+                <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-[10px] bg-accent border border-border/50">
                   {variants.length}
                 </Badge>
               )}
@@ -196,15 +181,15 @@ export function EditorPanel({
         </div>
 
         <TabsContent value="edit" className="flex-1 flex flex-col mt-0 overflow-hidden">
-          <div className="px-4 py-3 border-b">
-            <Label htmlFor="subject" className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <div className="px-4 py-3 border-b border-border/50">
+            <Label htmlFor="subject" className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
               Subject Line
             </Label>
             <Input
               id="subject"
               value={subject}
               onChange={(e) => onSubjectChange(e.target.value)}
-              className="mt-1.5 h-8 text-sm"
+              className="mt-1.5 h-8 text-sm bg-secondary/50 border-border/50"
               placeholder="Email subject..."
             />
           </div>
@@ -219,13 +204,13 @@ export function EditorPanel({
               {filteredVars.map((v) => (
                 <div
                   key={v.name}
-                  className="flex items-start gap-3 rounded-md p-3 hover:bg-muted transition-colors group"
+                  className="flex items-start gap-3 rounded-lg p-3 hover:bg-accent transition-colors duration-150 group"
                 >
                   <div className="flex-1 min-w-0">
-                    <code className="text-xs font-mono font-medium text-foreground">
+                    <code className="text-xs font-mono font-medium text-foreground/90">
                       {v.syntax}
                     </code>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground leading-relaxed">
+                    <p className="mt-0.5 text-[11px] text-muted-foreground/60 leading-relaxed">
                       {v.description}
                     </p>
                   </div>
@@ -238,7 +223,7 @@ export function EditorPanel({
                         onClick={() => copyVariable(v.syntax)}
                       >
                         {copiedVar === v.syntax ? (
-                          <Check className="h-3.5 w-3.5 text-emerald-500" />
+                          <Check className="h-3.5 w-3.5 text-emerald-400" />
                         ) : (
                           <Copy className="h-3.5 w-3.5" />
                         )}
@@ -256,13 +241,13 @@ export function EditorPanel({
           <ScrollArea className="h-full">
             <div className="p-4">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
                   Variants
                 </p>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 text-xs gap-1"
+                  className="h-7 text-xs gap-1 border-border/50 text-muted-foreground hover:text-foreground"
                   onClick={onVariantCreate}
                 >
                   <Plus className="h-3 w-3" />
@@ -275,17 +260,17 @@ export function EditorPanel({
                   <div
                     key={variant.id}
                     onClick={() => onVariantSelect(variant.id)}
-                    className={`flex items-center gap-3 rounded-md border px-3 py-2.5 cursor-pointer transition-colors ${
+                    className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 cursor-pointer transition-all duration-150 ${
                       activeVariantId === variant.id
-                        ? "border-foreground bg-secondary"
-                        : "border-transparent hover:bg-muted"
+                        ? "border-primary/50 bg-primary/[0.06]"
+                        : "border-border/30 hover:bg-accent hover:border-border/50"
                     }`}
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">
+                      <p className={`text-sm truncate ${activeVariantId === variant.id ? "font-medium text-foreground" : "text-foreground/80"}`}>
                         {variant.name}
                       </p>
-                      <p className="text-[11px] text-muted-foreground truncate">
+                      <p className="text-[11px] text-muted-foreground/50 truncate">
                         {variant.subject}
                       </p>
                     </div>
@@ -295,7 +280,7 @@ export function EditorPanel({
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-7 w-7 p-0"
+                            className="h-7 w-7 p-0 text-muted-foreground/50 hover:text-foreground"
                             onClick={(e) => {
                               e.stopPropagation();
                               onVariantDuplicate(variant.id);
@@ -312,7 +297,7 @@ export function EditorPanel({
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                              className="h-7 w-7 p-0 text-muted-foreground/50 hover:text-destructive"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onVariantDelete(variant.id);

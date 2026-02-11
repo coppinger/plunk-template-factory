@@ -2,6 +2,7 @@
 
 import CodeMirror from "@uiw/react-codemirror";
 import { html } from "@codemirror/lang-html";
+import { oneDark } from "@codemirror/theme-one-dark";
 
 interface CodeEditorProps {
   value: string;
@@ -14,7 +15,7 @@ export function CodeEditor({ value, onChange }: CodeEditorProps) {
       value={value}
       onChange={onChange}
       extensions={[html()]}
-      theme="light"
+      theme={oneDark}
       className="h-full text-[13px] [&_.cm-editor]:h-full [&_.cm-scroller]:h-full"
       basicSetup={{
         lineNumbers: true,

@@ -8,7 +8,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { templateTypes } from "@/lib/mock-data";
 import type { TemplateType } from "@/lib/types";
 import { Copy, Download, Mail, LayoutTemplate } from "lucide-react";
@@ -29,24 +28,31 @@ export function AppHeader({
   onCopy,
 }: AppHeaderProps) {
   return (
-    <header className="flex h-14 shrink-0 items-center border-b bg-white px-4">
+    <header className="flex h-14 shrink-0 items-center border-b border-border/50 bg-[#111114] px-4">
       <div className="flex items-center gap-2.5">
-        <Mail className="h-5 w-5 text-foreground" />
-        <h1 className="text-sm font-semibold tracking-tight">
-          Plunk Template Factory
-        </h1>
+        <div className="flex items-center justify-center h-7 w-7 rounded-lg bg-primary/10 ring-1 ring-primary/20">
+          <Mail className="h-3.5 w-3.5 text-primary" />
+        </div>
+        <div className="flex items-baseline gap-1.5">
+          <h1 className="text-sm font-semibold tracking-tight text-foreground">
+            Plunk
+          </h1>
+          <span className="text-[11px] text-muted-foreground font-medium tracking-tight">
+            Template Factory
+          </span>
+        </div>
       </div>
 
-      <Separator orientation="vertical" className="mx-4 h-6" />
+      <div className="mx-4 h-4 w-px bg-border/40" />
 
       {editingGlobal ? (
-        <div className="flex items-center gap-2 h-8 px-3 rounded-md border bg-secondary text-sm">
-          <LayoutTemplate className="h-3.5 w-3.5" />
-          <span className="text-xs font-medium">Base Template</span>
+        <div className="flex items-center gap-2 h-7 px-2.5 rounded-md bg-primary/[0.08] border border-primary/20 text-xs">
+          <LayoutTemplate className="h-3 w-3 text-primary" />
+          <span className="text-[11px] font-medium text-primary">Base Template</span>
         </div>
       ) : (
         <Select value={selectedType} onValueChange={(v) => onTypeChange(v as TemplateType)}>
-          <SelectTrigger className="w-[200px] h-8 text-xs">
+          <SelectTrigger className="w-[200px] h-7 text-xs bg-secondary/50 border-border/50">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -59,13 +65,13 @@ export function AppHeader({
         </Select>
       )}
 
-      <div className="ml-auto flex items-center gap-1.5">
-        <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={onCopy}>
-          <Copy className="h-3.5 w-3.5" />
+      <div className="ml-auto flex items-center gap-1">
+        <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1.5 text-muted-foreground hover:text-foreground" onClick={onCopy}>
+          <Copy className="h-3 w-3" />
           Copy HTML
         </Button>
-        <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={onExport}>
-          <Download className="h-3.5 w-3.5" />
+        <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1.5 text-muted-foreground hover:text-foreground" onClick={onExport}>
+          <Download className="h-3 w-3" />
           Export
         </Button>
       </div>
