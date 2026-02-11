@@ -1,14 +1,16 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import type { TemplateType, TemplateVariant, GlobalTemplate } from "@/lib/types";
+import type { TemplateType, TemplateVariant, GlobalTemplate, TemplateStyle } from "@/lib/types";
+import { DEFAULT_STYLE } from "@/lib/types";
 import { emailTemplates, defaultGlobalTemplate } from "@/lib/mock-data";
-import { composeEmail } from "@/lib/utils";
+import { composeEmail, applyStyleTokens } from "@/lib/utils";
 
 export function useTemplateEditor() {
   const [selectedType, setSelectedType] = useState<TemplateType>("confirm-signup");
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [editingGlobal, setEditingGlobal] = useState(false);
+  const [templateStyle, setTemplateStyle] = useState<TemplateStyle>(() => ({ ...DEFAULT_STYLE }));
 
   const [globalTemplate, setGlobalTemplate] = useState<GlobalTemplate>(
     () => ({ ...defaultGlobalTemplate })
@@ -47,8 +49,8 @@ export function useTemplateEditor() {
   );
 
   const composedHtml = useMemo(
-    () => composeEmail(globalTemplate.html, currentTemplate.bodyHtml),
-    [globalTemplate.html, currentTemplate.bodyHtml]
+    () => composeEmail(globalTemplate.html, currentTemplate.bodyHtml, templateStyle),
+    [globalTemplate.html, currentTemplate.bodyHtml, templateStyle]
   );
 
   const variantCounts = useMemo(() => {
@@ -186,16 +188,20 @@ export function useTemplateEditor() {
     setEditingGlobal(true);
   }, []);
 
+  const updateStyle = useCallback((updates: Partial<TemplateStyle>) => {
+    setTemplateStyle((prev) => ({ ...prev, ...updates }));
+  }, []);
+
   const copyHtml = useCallback(() => {
     if (editingGlobal) {
-      navigator.clipboard.writeText(globalTemplate.html);
+      navigator.clipboard.writeText(applyStyleTokens(globalTemplate.html, templateStyle));
     } else {
       navigator.clipboard.writeText(composedHtml);
     }
-  }, [editingGlobal, globalTemplate.html, composedHtml]);
+  }, [editingGlobal, globalTemplate.html, composedHtml, templateStyle]);
 
   const exportHtml = useCallback(() => {
-    const content = editingGlobal ? globalTemplate.html : composedHtml;
+    const content = editingGlobal ? applyStyleTokens(globalTemplate.html, templateStyle) : composedHtml;
     const filename = editingGlobal ? "base-template.html" : `${selectedType}-template.html`;
     const blob = new Blob([content], { type: "text/html" });
     const url = URL.createObjectURL(blob);
@@ -204,7 +210,7 @@ export function useTemplateEditor() {
     a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
-  }, [editingGlobal, globalTemplate.html, composedHtml, selectedType]);
+  }, [editingGlobal, globalTemplate.html, composedHtml, selectedType, templateStyle]);
 
   return {
     selectedType,
@@ -229,5 +235,8 @@ export function useTemplateEditor() {
     globalTemplate,
     setGlobalHtml,
     composedHtml,
+    // Style customization
+    templateStyle,
+    updateStyle,
   };
 }

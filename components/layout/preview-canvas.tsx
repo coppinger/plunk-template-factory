@@ -14,7 +14,7 @@ export function PreviewCanvas({
   device,
   onDeviceChange,
 }: PreviewCanvasProps) {
-  const width = device === "desktop" ? 600 : 375;
+  const width = device === "desktop" ? 700 : 375;
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 overflow-hidden">

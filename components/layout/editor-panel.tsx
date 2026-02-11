@@ -15,6 +15,8 @@ import { CodeEditor } from "@/components/editor/code-editor";
 import { supabaseVariables } from "@/lib/mock-data";
 import type { TemplateType, TemplateVariant } from "@/lib/types";
 import { BODY_PLACEHOLDER } from "@/lib/types";
+import { StyleEditorTab } from "@/components/editor/style-editor-tab";
+import type { TemplateStyle } from "@/lib/types";
 import {
   Copy,
   Check,
@@ -22,6 +24,7 @@ import {
   CopyPlus,
   Trash2,
   Info,
+  Palette,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -38,6 +41,8 @@ interface EditorPanelProps {
   onVariantCreate: () => void;
   onVariantDuplicate: (id: string) => void;
   onVariantDelete: (id: string) => void;
+  templateStyle?: TemplateStyle;
+  onStyleChange?: (updates: Partial<TemplateStyle>) => void;
 }
 
 export function EditorPanel({
@@ -53,6 +58,8 @@ export function EditorPanel({
   onVariantCreate,
   onVariantDuplicate,
   onVariantDelete,
+  templateStyle,
+  onStyleChange,
 }: EditorPanelProps) {
   const [copiedVar, setCopiedVar] = useState<string | null>(null);
 
@@ -68,7 +75,7 @@ export function EditorPanel({
 
   if (editingGlobal) {
     return (
-      <div className="flex h-full w-[420px] shrink-0 flex-col border-l bg-white">
+      <div className="flex h-full w-[520px] shrink-0 flex-col border-l bg-white">
         <Tabs defaultValue="edit" className="flex h-full flex-col">
           <div className="border-b px-4">
             <TabsList className="h-10 w-full justify-start gap-2 bg-transparent p-0">
@@ -77,6 +84,13 @@ export function EditorPanel({
                 className="h-10 rounded-none border-b-2 border-transparent px-3 pb-2.5 pt-2.5 text-xs font-medium data-[state=active]:border-foreground data-[state=active]:shadow-none"
               >
                 Edit
+              </TabsTrigger>
+              <TabsTrigger
+                value="style"
+                className="h-10 rounded-none border-b-2 border-transparent px-3 pb-2.5 pt-2.5 text-xs font-medium data-[state=active]:border-foreground data-[state=active]:shadow-none gap-1"
+              >
+                <Palette className="h-3 w-3" />
+                Style
               </TabsTrigger>
               <TabsTrigger
                 value="variables"
@@ -99,6 +113,12 @@ export function EditorPanel({
             <div className="flex-1 overflow-hidden">
               <CodeEditor value={html} onChange={onHtmlChange} />
             </div>
+          </TabsContent>
+
+          <TabsContent value="style" className="flex-1 mt-0 overflow-hidden">
+            {templateStyle && onStyleChange && (
+              <StyleEditorTab style={templateStyle} onChange={onStyleChange} />
+            )}
           </TabsContent>
 
           <TabsContent value="variables" className="flex-1 mt-0 overflow-hidden">
@@ -145,7 +165,7 @@ export function EditorPanel({
   }
 
   return (
-    <div className="flex h-full w-[420px] shrink-0 flex-col border-l bg-white">
+    <div className="flex h-full w-[520px] shrink-0 flex-col border-l bg-white">
       <Tabs defaultValue="edit" className="flex h-full flex-col">
         <div className="border-b px-4">
           <TabsList className="h-10 w-full justify-start gap-2 bg-transparent p-0">

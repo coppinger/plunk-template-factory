@@ -40,3 +40,39 @@ export interface EmailTemplate {
   bodyHtml: string;
   variants: TemplateVariant[];
 }
+
+export interface TemplateStyle {
+  brandName: string;
+  brandColor: string;
+  backgroundColor: string;
+  containerBackground: string;
+  headingColor: string;
+  bodyColor: string;
+  footerColor: string;
+  footerLinkColor: string;
+  buttonBackground: string;
+  buttonTextColor: string;
+  buttonRadius: string;
+  containerRadius: string;
+  fontFamily: string;
+  headingSize: string;
+  bodySize: string;
+}
+
+export const DEFAULT_STYLE: TemplateStyle = {
+  brandName: "YourApp",
+  brandColor: "#18181b",
+  backgroundColor: "#f4f4f5",
+  containerBackground: "#ffffff",
+  headingColor: "#18181b",
+  bodyColor: "#52525b",
+  footerColor: "#a1a1aa",
+  footerLinkColor: "#71717a",
+  buttonBackground: "#18181b",
+  buttonTextColor: "#ffffff",
+  buttonRadius: "8px",
+  containerRadius: "12px",
+  fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+  headingSize: "24px",
+  bodySize: "15px",
+};

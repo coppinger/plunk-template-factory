@@ -5,6 +5,7 @@ import { TemplateSidebar } from "@/components/layout/template-sidebar";
 import { PreviewCanvas } from "@/components/layout/preview-canvas";
 import { EditorPanel } from "@/components/layout/editor-panel";
 import { useTemplateEditor } from "@/hooks/use-template-editor";
+import { applyStyleTokens } from "@/lib/utils";
 
 export default function Home() {
   const editor = useTemplateEditor();
@@ -29,7 +30,7 @@ export default function Home() {
         />
 
         <PreviewCanvas
-          html={editor.editingGlobal ? editor.globalTemplate.html : editor.composedHtml}
+          html={editor.editingGlobal ? applyStyleTokens(editor.globalTemplate.html, editor.templateStyle) : editor.composedHtml}
           device={editor.device}
           onDeviceChange={editor.setDevice}
         />
@@ -47,6 +48,8 @@ export default function Home() {
           onVariantCreate={editor.createVariant}
           onVariantDuplicate={editor.duplicateVariant}
           onVariantDelete={editor.deleteVariant}
+          templateStyle={editor.templateStyle}
+          onStyleChange={editor.updateStyle}
         />
       </div>
     </div>

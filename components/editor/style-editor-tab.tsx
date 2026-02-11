@@ -1,0 +1,229 @@
+"use client";
+
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import type { TemplateStyle } from "@/lib/types";
+import { DEFAULT_STYLE } from "@/lib/types";
+import { Info, RotateCcw } from "lucide-react";
+
+interface StyleEditorTabProps {
+  style: TemplateStyle;
+  onChange: (updates: Partial<TemplateStyle>) => void;
+}
+
+function ColorField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <Label className="text-xs text-muted-foreground w-[120px] shrink-0">
+        {label}
+      </Label>
+      <div className="flex items-center gap-1.5 flex-1">
+        <input
+          type="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-7 w-7 shrink-0 cursor-pointer rounded border border-input p-0.5"
+        />
+        <Input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-7 text-xs font-mono flex-1"
+        />
+      </div>
+    </div>
+  );
+}
+
+function TextField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <Label className="text-xs text-muted-foreground w-[120px] shrink-0">
+        {label}
+      </Label>
+      <Input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-7 text-xs flex-1"
+      />
+    </div>
+  );
+}
+
+function SectionHeader({ title }: { title: string }) {
+  return (
+    <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-2">
+      {title}
+    </p>
+  );
+}
+
+export function StyleEditorTab({ style, onChange }: StyleEditorTabProps) {
+  return (
+    <ScrollArea className="h-full">
+      <div className="p-4 space-y-5">
+        <div className="flex items-start gap-2 rounded-md bg-amber-50 p-2.5 text-[12px] leading-relaxed text-amber-700">
+          <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+          <span>These styles apply to all templates and variants.</span>
+        </div>
+
+        {/* Brand */}
+        <div>
+          <SectionHeader title="Brand" />
+          <div className="space-y-2">
+            <TextField
+              label="Brand Name"
+              value={style.brandName}
+              onChange={(v) => onChange({ brandName: v })}
+            />
+            <ColorField
+              label="Brand Color"
+              value={style.brandColor}
+              onChange={(v) => onChange({ brandColor: v })}
+            />
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Colors */}
+        <div>
+          <SectionHeader title="Colors" />
+          <div className="space-y-2">
+            <ColorField
+              label="Background"
+              value={style.backgroundColor}
+              onChange={(v) => onChange({ backgroundColor: v })}
+            />
+            <ColorField
+              label="Container"
+              value={style.containerBackground}
+              onChange={(v) => onChange({ containerBackground: v })}
+            />
+            <ColorField
+              label="Heading"
+              value={style.headingColor}
+              onChange={(v) => onChange({ headingColor: v })}
+            />
+            <ColorField
+              label="Body Text"
+              value={style.bodyColor}
+              onChange={(v) => onChange({ bodyColor: v })}
+            />
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Buttons */}
+        <div>
+          <SectionHeader title="Buttons" />
+          <div className="space-y-2">
+            <ColorField
+              label="Background"
+              value={style.buttonBackground}
+              onChange={(v) => onChange({ buttonBackground: v })}
+            />
+            <ColorField
+              label="Text"
+              value={style.buttonTextColor}
+              onChange={(v) => onChange({ buttonTextColor: v })}
+            />
+            <TextField
+              label="Border Radius"
+              value={style.buttonRadius}
+              onChange={(v) => onChange({ buttonRadius: v })}
+            />
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Container */}
+        <div>
+          <SectionHeader title="Container" />
+          <div className="space-y-2">
+            <TextField
+              label="Border Radius"
+              value={style.containerRadius}
+              onChange={(v) => onChange({ containerRadius: v })}
+            />
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Typography */}
+        <div>
+          <SectionHeader title="Typography" />
+          <div className="space-y-2">
+            <TextField
+              label="Font Family"
+              value={style.fontFamily}
+              onChange={(v) => onChange({ fontFamily: v })}
+            />
+            <TextField
+              label="Heading Size"
+              value={style.headingSize}
+              onChange={(v) => onChange({ headingSize: v })}
+            />
+            <TextField
+              label="Body Size"
+              value={style.bodySize}
+              onChange={(v) => onChange({ bodySize: v })}
+            />
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Footer */}
+        <div>
+          <SectionHeader title="Footer" />
+          <div className="space-y-2">
+            <ColorField
+              label="Text"
+              value={style.footerColor}
+              onChange={(v) => onChange({ footerColor: v })}
+            />
+            <ColorField
+              label="Link"
+              value={style.footerLinkColor}
+              onChange={(v) => onChange({ footerLinkColor: v })}
+            />
+          </div>
+        </div>
+
+        <Separator />
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full text-xs gap-1.5"
+          onClick={() => onChange({ ...DEFAULT_STYLE })}
+        >
+          <RotateCcw className="h-3 w-3" />
+          Reset to Defaults
+        </Button>
+      </div>
+    </ScrollArea>
+  );
+}
