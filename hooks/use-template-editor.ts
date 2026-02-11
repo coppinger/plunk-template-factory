@@ -11,6 +11,7 @@ export function useTemplateEditor() {
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [editingGlobal, setEditingGlobal] = useState(false);
   const [templateStyle, setTemplateStyle] = useState<TemplateStyle>(() => ({ ...DEFAULT_STYLE }));
+  const [zoom, setZoom] = useState(1);
 
   const [globalTemplate, setGlobalTemplate] = useState<GlobalTemplate>(
     () => ({ ...defaultGlobalTemplate })
@@ -176,6 +177,23 @@ export function useTemplateEditor() {
     [selectedType, currentTemplate, activeVariantId]
   );
 
+  const renameVariant = useCallback(
+    (variantId: string, name: string) => {
+      setTemplates((prev) =>
+        prev.map((t) => {
+          if (t.type !== selectedType) return t;
+          return {
+            ...t,
+            variants: t.variants.map((v) =>
+              v.id === variantId ? { ...v, name } : v
+            ),
+          };
+        })
+      );
+    },
+    [selectedType]
+  );
+
   const changeType = useCallback(
     (type: TemplateType) => {
       setSelectedType(type);
@@ -212,6 +230,18 @@ export function useTemplateEditor() {
     URL.revokeObjectURL(url);
   }, [editingGlobal, globalTemplate.html, composedHtml, selectedType, templateStyle]);
 
+  const zoomIn = useCallback(() => {
+    setZoom((prev) => Math.min(2, Math.round((prev + 0.1) * 10) / 10));
+  }, []);
+
+  const zoomOut = useCallback(() => {
+    setZoom((prev) => Math.max(0.3, Math.round((prev - 0.1) * 10) / 10));
+  }, []);
+
+  const zoomReset = useCallback(() => {
+    setZoom(1);
+  }, []);
+
   return {
     selectedType,
     device,
@@ -227,6 +257,7 @@ export function useTemplateEditor() {
     createVariant,
     duplicateVariant,
     deleteVariant,
+    renameVariant,
     copyHtml,
     exportHtml,
     // Global template additions
@@ -238,5 +269,10 @@ export function useTemplateEditor() {
     // Style customization
     templateStyle,
     updateStyle,
+    // Zoom
+    zoom,
+    zoomIn,
+    zoomOut,
+    zoomReset,
   };
 }

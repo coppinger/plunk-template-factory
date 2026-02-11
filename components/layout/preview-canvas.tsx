@@ -1,18 +1,32 @@
 "use client";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Monitor, Smartphone } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Monitor, Smartphone, ZoomIn, ZoomOut } from "lucide-react";
 
 interface PreviewCanvasProps {
   html: string;
   device: "desktop" | "mobile";
   onDeviceChange: (device: "desktop" | "mobile") => void;
+  zoom: number;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onZoomReset: () => void;
 }
 
 export function PreviewCanvas({
   html,
   device,
   onDeviceChange,
+  zoom,
+  onZoomIn,
+  onZoomOut,
+  onZoomReset,
 }: PreviewCanvasProps) {
   const width = device === "desktop" ? 700 : 375;
 
@@ -20,8 +34,13 @@ export function PreviewCanvas({
     <div className="flex flex-1 flex-col overflow-hidden relative">
       <div className="flex-1 flex items-start justify-center overflow-auto canvas-grid p-8">
         <div
-          className="bg-white rounded-xl shadow-2xl shadow-black/40 ring-1 ring-white/[0.06] transition-all duration-500 ease-out overflow-hidden"
-          style={{ width, minHeight: 400 }}
+          className="relative bg-white rounded-lg elevation-2 border border-white/[0.08] transition-all duration-300 ease-out overflow-hidden"
+          style={{
+            width,
+            minHeight: 400,
+            transform: `scale(${zoom})`,
+            transformOrigin: "top center",
+          }}
         >
           <iframe
             srcDoc={html}
@@ -33,24 +52,66 @@ export function PreviewCanvas({
         </div>
       </div>
 
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2">
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2">
         <ToggleGroup
           type="single"
           value={device}
           onValueChange={(v) => {
             if (v) onDeviceChange(v as "desktop" | "mobile");
           }}
-          className="gap-0.5 rounded-full bg-[#161619]/90 backdrop-blur-md p-1 border border-border/40 shadow-xl shadow-black/30"
+          className="gap-0.5 rounded-full bg-[#141418]/95 backdrop-blur-md p-1 border border-border/40 elevation-2"
         >
-          <ToggleGroupItem value="desktop" className="h-7 px-3 text-sm gap-1.5 rounded-full data-[state=on]:bg-accent data-[state=on]:text-foreground text-muted-foreground transition-all duration-150">
+          <ToggleGroupItem value="desktop" className="h-7 px-3 text-[13px] gap-1.5 rounded-full data-[state=on]:bg-white/[0.08] data-[state=on]:text-foreground text-muted-foreground transition-all duration-150">
             <Monitor className="h-3 w-3" />
             Desktop
           </ToggleGroupItem>
-          <ToggleGroupItem value="mobile" className="h-7 px-3 text-sm gap-1.5 rounded-full data-[state=on]:bg-accent data-[state=on]:text-foreground text-muted-foreground transition-all duration-150">
+          <ToggleGroupItem value="mobile" className="h-7 px-3 text-[13px] gap-1.5 rounded-full data-[state=on]:bg-white/[0.08] data-[state=on]:text-foreground text-muted-foreground transition-all duration-150">
             <Smartphone className="h-3 w-3" />
             Mobile
           </ToggleGroupItem>
         </ToggleGroup>
+
+        <div className="flex items-center gap-0.5 rounded-full bg-[#141418]/95 backdrop-blur-md p-1 border border-border/40 elevation-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 rounded-full text-muted-foreground hover:text-foreground"
+                onClick={onZoomOut}
+                disabled={zoom <= 0.3}
+              >
+                <ZoomOut className="h-3 w-3" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Zoom out</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={onZoomReset}
+                className="h-7 min-w-[42px] px-1.5 text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors rounded-full"
+              >
+                {Math.round(zoom * 100)}%
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Reset zoom</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 rounded-full text-muted-foreground hover:text-foreground"
+                onClick={onZoomIn}
+                disabled={zoom >= 2}
+              >
+                <ZoomIn className="h-3 w-3" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Zoom in</TooltipContent>
+          </Tooltip>
+        </div>
       </div>
     </div>
   );

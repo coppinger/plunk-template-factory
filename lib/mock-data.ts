@@ -1,5 +1,4 @@
 import type {
-  TemplateType,
   TemplateTypeInfo,
   SupabaseVariable,
   EmailTemplate,

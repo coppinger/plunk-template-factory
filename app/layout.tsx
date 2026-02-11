@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, Fira_Code } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -29,6 +30,7 @@ export default function RootLayout({
         className={`${dmSans.className} ${dmSans.variable} ${firaCode.variable} antialiased`}
       >
         <TooltipProvider>{children}</TooltipProvider>
+        <Toaster position="bottom-right" richColors />
       </body>
     </html>
   );
