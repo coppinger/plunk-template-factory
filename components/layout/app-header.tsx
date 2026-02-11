@@ -34,30 +34,27 @@ export function AppHeader({
           <Mail className="h-3.5 w-3.5 text-primary" />
         </div>
         <div className="flex items-baseline gap-1.5">
-          <h1 className="text-sm font-semibold tracking-tight text-foreground">
-            Plunk
+          <h1 className="text-lg font-semibold tracking-tight text-foreground">
+            Plunk Template Factory
           </h1>
-          <span className="text-[11px] text-muted-foreground font-medium tracking-tight">
-            Template Factory
-          </span>
         </div>
       </div>
 
       <div className="mx-4 h-4 w-px bg-border/40" />
 
       {editingGlobal ? (
-        <div className="flex items-center gap-2 h-7 px-2.5 rounded-md bg-primary/[0.08] border border-primary/20 text-xs">
+        <div className="flex items-center gap-2 h-7 px-2.5 rounded-md bg-primary/[0.08] border border-primary/20 text-sm">
           <LayoutTemplate className="h-3 w-3 text-primary" />
-          <span className="text-[11px] font-medium text-primary">Base Template</span>
+          <span className="text-sm font-medium text-primary">Base Template</span>
         </div>
       ) : (
         <Select value={selectedType} onValueChange={(v) => onTypeChange(v as TemplateType)}>
-          <SelectTrigger className="w-[200px] h-7 text-xs bg-secondary/50 border-border/50">
+          <SelectTrigger className="w-[200px] h-7 text-sm bg-secondary/50 border-border/50">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {templateTypes.map((t) => (
-              <SelectItem key={t.id} value={t.id} className="text-xs">
+              <SelectItem key={t.id} value={t.id} className="text-sm">
                 {t.label}
               </SelectItem>
             ))}
@@ -66,11 +63,11 @@ export function AppHeader({
       )}
 
       <div className="ml-auto flex items-center gap-1">
-        <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1.5 text-muted-foreground hover:text-foreground" onClick={onCopy}>
+        <Button variant="ghost" size="sm" className="h-7 text-sm gap-1.5 text-muted-foreground hover:text-foreground" onClick={onCopy}>
           <Copy className="h-3 w-3" />
           Copy HTML
         </Button>
-        <Button variant="ghost" size="sm" className="h-7 text-[11px] gap-1.5 text-muted-foreground hover:text-foreground" onClick={onExport}>
+        <Button variant="ghost" size="sm" className="h-7 text-sm gap-1.5 text-muted-foreground hover:text-foreground" onClick={onExport}>
           <Download className="h-3 w-3" />
           Export
         </Button>

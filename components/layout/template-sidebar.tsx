@@ -61,7 +61,7 @@ export function TemplateSidebar({
   return (
     <div className="flex h-full w-[280px] shrink-0 flex-col border-r border-border/50 bg-[#111114]">
       <div className="px-4 py-3">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
           Templates
         </p>
       </div>
@@ -70,7 +70,7 @@ export function TemplateSidebar({
         <div className="px-2">
           <button
             onClick={onEditGlobal}
-            className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] transition-all duration-150 ${
+            className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-base transition-all duration-150 ${
               editingGlobal
                 ? "bg-primary/[0.08] text-primary font-medium border-l-2 border-primary ml-0"
                 : "text-muted-foreground hover:bg-accent hover:text-foreground border-l-2 border-transparent"
@@ -89,7 +89,7 @@ export function TemplateSidebar({
               <button
                 key={t.id}
                 onClick={() => onTypeChange(t.id)}
-                className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] transition-all duration-150 ${
+                className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-base transition-all duration-150 ${
                   isActive
                     ? "bg-primary/[0.08] text-primary font-medium border-l-2 border-primary"
                     : "text-muted-foreground hover:bg-accent hover:text-foreground border-l-2 border-transparent"
@@ -100,7 +100,7 @@ export function TemplateSidebar({
                 {variantCounts[t.id] > 1 && (
                   <Badge
                     variant="secondary"
-                    className="h-[18px] min-w-[18px] justify-center px-1.5 text-[10px] font-medium bg-accent border border-border/50"
+                    className="h-[18px] min-w-[18px] justify-center px-1.5 text-xs font-medium bg-accent border border-border/50"
                   >
                     {variantCounts[t.id]}
                   </Badge>
@@ -115,10 +115,10 @@ export function TemplateSidebar({
             <div className="my-3 mx-4 h-px bg-border/30" />
 
             <div className="px-4 pb-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
                 Variables
               </p>
-              <p className="mt-1 text-[11px] text-muted-foreground/50">
+              <p className="mt-1 text-sm text-muted-foreground/50">
                 Available for {templateTypes.find((t) => t.id === selectedType)?.label}
               </p>
             </div>
@@ -131,7 +131,7 @@ export function TemplateSidebar({
                       onClick={() => copyVariable(v.syntax)}
                       className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left transition-all duration-150 hover:bg-accent group"
                     >
-                      <code className="flex-1 text-[11px] font-mono text-foreground/70">
+                      <code className="flex-1 text-sm font-mono text-foreground/70">
                         {v.syntax}
                       </code>
                       {copiedVar === v.syntax ? (
@@ -142,7 +142,7 @@ export function TemplateSidebar({
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="right" className="max-w-[200px]">
-                    <p className="text-xs">{v.description}</p>
+                    <p className="text-sm">{v.description}</p>
                   </TooltipContent>
                 </Tooltip>
               ))}

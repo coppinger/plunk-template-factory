@@ -42,11 +42,11 @@ export function PreviewCanvas({
           }}
           className="gap-0.5 rounded-full bg-[#161619]/90 backdrop-blur-md p-1 border border-border/40 shadow-xl shadow-black/30"
         >
-          <ToggleGroupItem value="desktop" className="h-7 px-3 text-[11px] gap-1.5 rounded-full data-[state=on]:bg-accent data-[state=on]:text-foreground text-muted-foreground transition-all duration-150">
+          <ToggleGroupItem value="desktop" className="h-7 px-3 text-sm gap-1.5 rounded-full data-[state=on]:bg-accent data-[state=on]:text-foreground text-muted-foreground transition-all duration-150">
             <Monitor className="h-3 w-3" />
             Desktop
           </ToggleGroupItem>
-          <ToggleGroupItem value="mobile" className="h-7 px-3 text-[11px] gap-1.5 rounded-full data-[state=on]:bg-accent data-[state=on]:text-foreground text-muted-foreground transition-all duration-150">
+          <ToggleGroupItem value="mobile" className="h-7 px-3 text-sm gap-1.5 rounded-full data-[state=on]:bg-accent data-[state=on]:text-foreground text-muted-foreground transition-all duration-150">
             <Smartphone className="h-3 w-3" />
             Mobile
           </ToggleGroupItem>

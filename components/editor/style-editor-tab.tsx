@@ -24,7 +24,7 @@ function ColorField({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <Label className="text-xs text-muted-foreground/70 w-[120px] shrink-0">
+      <Label className="text-sm text-muted-foreground/70 w-[120px] shrink-0">
         {label}
       </Label>
       <div className="flex items-center gap-1.5 flex-1">
@@ -37,7 +37,7 @@ function ColorField({
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="h-7 text-xs font-mono flex-1 bg-secondary/50 border-border/50"
+          className="h-7 text-sm font-mono flex-1 bg-secondary/50 border-border/50"
         />
       </div>
     </div>
@@ -55,13 +55,13 @@ function TextField({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <Label className="text-xs text-muted-foreground/70 w-[120px] shrink-0">
+      <Label className="text-sm text-muted-foreground/70 w-[120px] shrink-0">
         {label}
       </Label>
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-7 text-xs flex-1 bg-secondary/50 border-border/50"
+        className="h-7 text-sm flex-1 bg-secondary/50 border-border/50"
       />
     </div>
   );
@@ -69,7 +69,7 @@ function TextField({
 
 function SectionHeader({ title }: { title: string }) {
   return (
-    <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-2">
+    <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-2">
       {title}
     </p>
   );
@@ -79,7 +79,7 @@ export function StyleEditorTab({ style, onChange }: StyleEditorTabProps) {
   return (
     <ScrollArea className="h-full">
       <div className="p-4 space-y-5">
-        <div className="flex items-start gap-2 rounded-lg bg-amber-500/[0.06] border border-amber-500/10 p-2.5 text-[11px] leading-relaxed text-amber-300/80">
+        <div className="flex items-start gap-2 rounded-lg bg-amber-500/[0.06] border border-amber-500/10 p-2.5 text-sm leading-relaxed text-amber-300/80">
           <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-amber-400/60" />
           <span>These styles apply to all templates and variants.</span>
         </div>
@@ -216,7 +216,7 @@ export function StyleEditorTab({ style, onChange }: StyleEditorTabProps) {
         <Button
           variant="outline"
           size="sm"
-          className="w-full text-xs gap-1.5 border-border/50 text-muted-foreground hover:text-foreground"
+          className="w-full text-sm gap-1.5 border-border/50 text-muted-foreground hover:text-foreground"
           onClick={() => onChange({ ...DEFAULT_STYLE })}
         >
           <RotateCcw className="h-3 w-3" />

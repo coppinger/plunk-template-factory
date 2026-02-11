@@ -29,7 +29,7 @@ import {
 import { useState } from "react";
 
 const tabTriggerClass =
-  "h-10 rounded-none border-b-2 border-transparent px-3 pb-2.5 pt-2.5 text-[11px] font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-colors duration-150";
+  "h-10 rounded-none border-b-2 border-transparent px-3 pb-2.5 pt-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-colors duration-150";
 
 interface EditorPanelProps {
   selectedType: TemplateType;
@@ -97,10 +97,10 @@ export function EditorPanel({
 
           <TabsContent value="edit" className="flex-1 flex flex-col mt-0 overflow-hidden">
             <div className="px-4 py-3 border-b border-border/50">
-              <div className="flex items-start gap-2 rounded-lg bg-sky-500/[0.06] border border-sky-500/10 p-2.5 text-[11px] leading-relaxed text-sky-300/80">
+              <div className="flex items-start gap-2 rounded-lg bg-sky-500/[0.06] border border-sky-500/10 p-2.5 text-sm leading-relaxed text-sky-300/80">
                 <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-sky-400/60" />
                 <span>
-                  This is the shared email wrapper. Use <code className="rounded bg-sky-500/10 px-1 font-mono text-[10px] text-sky-300">{BODY_PLACEHOLDER}</code> as the placeholder where each template&apos;s body content will be inserted.
+                  This is the shared email wrapper. Use <code className="rounded bg-sky-500/10 px-1 font-mono text-xs text-sky-300">{BODY_PLACEHOLDER}</code> as the placeholder where each template&apos;s body content will be inserted.
                 </span>
               </div>
             </div>
@@ -124,10 +124,10 @@ export function EditorPanel({
                     className="flex items-start gap-3 rounded-lg p-3 hover:bg-accent transition-colors duration-150 group"
                   >
                     <div className="flex-1 min-w-0">
-                      <code className="text-xs font-mono font-medium text-foreground/90">
+                      <code className="text-sm font-mono font-medium text-foreground/90">
                         {v.syntax}
                       </code>
-                      <p className="mt-0.5 text-[11px] text-muted-foreground/60 leading-relaxed">
+                      <p className="mt-0.5 text-sm text-muted-foreground/60 leading-relaxed">
                         {v.description}
                       </p>
                     </div>
@@ -172,7 +172,7 @@ export function EditorPanel({
             <TabsTrigger value="variants" className={tabTriggerClass}>
               Variants
               {variants.length > 1 && (
-                <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-[10px] bg-accent border border-border/50">
+                <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-xs bg-accent border border-border/50">
                   {variants.length}
                 </Badge>
               )}
@@ -182,14 +182,14 @@ export function EditorPanel({
 
         <TabsContent value="edit" className="flex-1 flex flex-col mt-0 overflow-hidden">
           <div className="px-4 py-3 border-b border-border/50">
-            <Label htmlFor="subject" className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+            <Label htmlFor="subject" className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
               Subject Line
             </Label>
             <Input
               id="subject"
               value={subject}
               onChange={(e) => onSubjectChange(e.target.value)}
-              className="mt-1.5 h-8 text-sm bg-secondary/50 border-border/50"
+              className="mt-1.5 h-8 text-lg bg-secondary/50 border-border/50"
               placeholder="Email subject..."
             />
           </div>
@@ -207,10 +207,10 @@ export function EditorPanel({
                   className="flex items-start gap-3 rounded-lg p-3 hover:bg-accent transition-colors duration-150 group"
                 >
                   <div className="flex-1 min-w-0">
-                    <code className="text-xs font-mono font-medium text-foreground/90">
+                    <code className="text-sm font-mono font-medium text-foreground/90">
                       {v.syntax}
                     </code>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground/60 leading-relaxed">
+                    <p className="mt-0.5 text-sm text-muted-foreground/60 leading-relaxed">
                       {v.description}
                     </p>
                   </div>
@@ -241,13 +241,13 @@ export function EditorPanel({
           <ScrollArea className="h-full">
             <div className="p-4">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
                   Variants
                 </p>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 text-xs gap-1 border-border/50 text-muted-foreground hover:text-foreground"
+                  className="h-7 text-sm gap-1 border-border/50 text-muted-foreground hover:text-foreground"
                   onClick={onVariantCreate}
                 >
                   <Plus className="h-3 w-3" />
@@ -267,10 +267,10 @@ export function EditorPanel({
                     }`}
                   >
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm truncate ${activeVariantId === variant.id ? "font-medium text-foreground" : "text-foreground/80"}`}>
+                      <p className={`text-lg truncate ${activeVariantId === variant.id ? "font-medium text-foreground" : "text-foreground/80"}`}>
                         {variant.name}
                       </p>
-                      <p className="text-[11px] text-muted-foreground/50 truncate">
+                      <p className="text-sm text-muted-foreground/50 truncate">
                         {variant.subject}
                       </p>
                     </div>

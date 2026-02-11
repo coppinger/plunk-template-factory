@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Sora, Fira_Code } from "next/font/google";
+import { DM_Sans, Fira_Code } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
-const sora = Sora({
-  variable: "--font-sora",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
 });
 
@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${sora.variable} ${firaCode.variable} antialiased`}
+        className={`${dmSans.className} ${dmSans.variable} ${firaCode.variable} antialiased`}
       >
         <TooltipProvider>{children}</TooltipProvider>
       </body>
