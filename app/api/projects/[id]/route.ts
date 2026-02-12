@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { isValidPersistedData } from "@/lib/persistence";
+import { isValidPersistedData, isValidUUID, MAX_PROJECT_NAME_LENGTH } from "@/lib/persistence";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -10,6 +10,10 @@ interface RouteContext {
 export async function GET(_request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
+    if (!isValidUUID(id)) {
+      return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
+    }
+
     const supabase = await createClient();
     const {
       data: { user },
@@ -47,6 +51,10 @@ export async function GET(_request: Request, context: RouteContext) {
 export async function PUT(request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
+    if (!isValidUUID(id)) {
+      return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
+    }
+
     const supabase = await createClient();
     const {
       data: { user },
@@ -60,7 +68,8 @@ export async function PUT(request: Request, context: RouteContext) {
     const updates: Record<string, unknown> = {};
 
     if (typeof body.name === "string" && body.name.trim()) {
-      updates.name = body.name.trim();
+      const trimmedName = body.name.trim().slice(0, MAX_PROJECT_NAME_LENGTH);
+      updates.name = trimmedName;
     }
 
     if (body.data !== undefined) {
@@ -95,6 +104,10 @@ export async function PUT(request: Request, context: RouteContext) {
 export async function DELETE(_request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
+    if (!isValidUUID(id)) {
+      return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
+    }
+
     const supabase = await createClient();
     const {
       data: { user },

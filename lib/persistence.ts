@@ -56,3 +56,12 @@ export function isValidProject(data: unknown): data is Project {
     isValidPersistedData(d.data)
   );
 }
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function isValidUUID(value: string): boolean {
+  return UUID_RE.test(value);
+}
+
+export const MAX_PROJECT_NAME_LENGTH = 100;
+export const MAX_PROJECTS_PER_USER = 50;

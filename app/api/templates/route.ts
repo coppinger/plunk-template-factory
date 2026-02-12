@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { isValidPersistedData } from "@/lib/persistence";
+import { isValidPersistedData, isValidUUID } from "@/lib/persistence";
 
 // GET /api/templates?projectId=xxx — load template data for a project
 export async function GET(request: Request) {
@@ -17,8 +17,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
 
-    if (!projectId) {
-      return NextResponse.json({ error: "projectId is required" }, { status: 400 });
+    if (!projectId || !isValidUUID(projectId)) {
+      return NextResponse.json({ error: "Valid projectId is required" }, { status: 400 });
     }
 
     const { data, error } = await supabase
@@ -57,8 +57,8 @@ export async function POST(request: Request) {
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
 
-    if (!projectId) {
-      return NextResponse.json({ error: "projectId is required" }, { status: 400 });
+    if (!projectId || !isValidUUID(projectId)) {
+      return NextResponse.json({ error: "Valid projectId is required" }, { status: 400 });
     }
 
     const body = await request.json();

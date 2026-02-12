@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { isValidPersistedData } from "@/lib/persistence";
+import {
+  isValidPersistedData,
+  MAX_PROJECT_NAME_LENGTH,
+  MAX_PROJECTS_PER_USER,
+} from "@/lib/persistence";
 
 // GET /api/projects — list all projects for the current user
 export async function GET() {
@@ -50,7 +54,9 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const name = typeof body.name === "string" ? body.name.trim() : "";
+    const name = typeof body.name === "string"
+      ? body.name.trim().slice(0, MAX_PROJECT_NAME_LENGTH)
+      : "";
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
@@ -59,12 +65,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid project data" }, { status: 400 });
     }
 
+    // Enforce per-user project limit
+    const { count, error: countError } = await supabase
+      .from("projects")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id);
+
+    if (countError) {
+      console.error("Failed to count projects:", countError);
+      return NextResponse.json({ error: "Failed to create project" }, { status: 500 });
+    }
+
+    if ((count ?? 0) >= MAX_PROJECTS_PER_USER) {
+      return NextResponse.json(
+        { error: `Maximum of ${MAX_PROJECTS_PER_USER} projects allowed` },
+        { status: 400 }
+      );
+    }
+
     const { data, error } = await supabase
       .from("projects")
       .insert({
         user_id: user.id,
         name,
-        data: body.data ?? null,
+        data: body.data ?? {},
       })
       .select("id, name, updated_at")
       .single();

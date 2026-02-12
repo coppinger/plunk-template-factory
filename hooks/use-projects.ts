@@ -48,11 +48,13 @@ export function useProjects(authState: AuthState) {
     if (authState.loading || !authState.isAuthenticated) return;
 
     fetch("/api/projects")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((result) => {
         const list: ProjectListItem[] = result.projects ?? [];
         setProjects(list);
-        // Auto-select the first (most recently updated) project
         if (list.length > 0) {
           setActiveProjectId(list[0].id);
         }
@@ -70,6 +72,7 @@ export function useProjects(authState: AuthState) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, data: defaultData }),
         });
+        if (!res.ok) return null;
         const result = await res.json();
         if (result.project) {
           const item: ProjectListItem = {
@@ -94,15 +97,20 @@ export function useProjects(authState: AuthState) {
     async (id: string): Promise<boolean> => {
       try {
         const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
+        if (!res.ok) return false;
         const result = await res.json();
         if (result.ok) {
+          let nextProjects: ProjectListItem[] = [];
           setProjects((prev) => {
-            const next = prev.filter((p) => p.id !== id);
-            // If we deleted the active project, switch to first remaining
-            if (activeProjectId === id) {
-              setActiveProjectId(next.length > 0 ? next[0].id : null);
+            nextProjects = prev.filter((p) => p.id !== id);
+            return nextProjects;
+          });
+          // If we deleted the active project, switch to the first remaining
+          setActiveProjectId((prev) => {
+            if (prev === id) {
+              return nextProjects.length > 0 ? nextProjects[0].id : null;
             }
-            return next;
+            return prev;
           });
           return true;
         }
@@ -112,7 +120,7 @@ export function useProjects(authState: AuthState) {
         return false;
       }
     },
-    [activeProjectId]
+    []
   );
 
   const renameProject = useCallback(
@@ -123,6 +131,7 @@ export function useProjects(authState: AuthState) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name }),
         });
+        if (!res.ok) return false;
         const result = await res.json();
         if (result.ok) {
           setProjects((prev) =>
@@ -142,19 +151,19 @@ export function useProjects(authState: AuthState) {
   const duplicateProject = useCallback(
     async (id: string, newName: string): Promise<string | null> => {
       try {
-        // Load the source project's data
         const loadRes = await fetch(`/api/projects/${id}`);
+        if (!loadRes.ok) return null;
         const loadResult = await loadRes.json();
         if (!loadResult.project?.data || !isValidPersistedData(loadResult.project.data)) {
           return null;
         }
 
-        // Create new project with cloned data
         const res = await fetch("/api/projects", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: newName, data: loadResult.project.data }),
         });
+        if (!res.ok) return null;
         const result = await res.json();
         if (result.project) {
           const item: ProjectListItem = {

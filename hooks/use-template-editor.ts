@@ -120,7 +120,10 @@ export function useTemplateEditor(authState: AuthState, projectId: string | null
     let cancelled = false;
 
     fetch(`/api/templates?projectId=${fetchProjectId}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((result) => {
         if (cancelled) return;
         if (result.saved) {
@@ -164,7 +167,7 @@ export function useTemplateEditor(authState: AuthState, projectId: string | null
       }).catch((err) => console.error("Failed to save templates:", err));
     }, 1000);
     return () => clearTimeout(timer);
-  }, [isLoaded, authState.isAuthenticated, projectId, templates, globalTemplate, templateStyle, customTemplateTypes, customVariables, activeVariantIds, getPersistedData]);
+  }, [isLoaded, authState.isAuthenticated, projectId, getPersistedData]);
 
   // JSON export/import
   const exportJson = useCallback(() => {
