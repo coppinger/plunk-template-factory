@@ -115,8 +115,8 @@ export function TemplateSidebar({
                   onClick={onEditGlobal}
                   className={`flex items-center justify-center h-8 w-8 rounded-lg transition-all duration-150 ${
                     editingGlobal
-                      ? "bg-primary/10 text-primary border-l-[3px] border-primary"
-                      : "text-muted-foreground hover:bg-accent hover:text-foreground border-l-[3px] border-transparent"
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   }`}
                 >
                   <LayoutTemplate className="h-3.5 w-3.5" />
@@ -137,8 +137,8 @@ export function TemplateSidebar({
                       onClick={() => onTypeChange(t.id)}
                       className={`flex items-center justify-center h-8 w-8 rounded-lg transition-all duration-150 ${
                         isActive
-                          ? "bg-primary/10 text-primary border-l-[3px] border-primary"
-                          : "text-muted-foreground hover:bg-accent hover:text-foreground border-l-[3px] border-transparent"
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-accent hover:text-foreground"
                       }`}
                     >
                       {Icon && <Icon className="h-3.5 w-3.5" />}
@@ -165,8 +165,8 @@ export function TemplateSidebar({
                           onClick={() => onTypeChange(t.id)}
                           className={`flex items-center justify-center h-8 w-8 rounded-lg transition-all duration-150 ${
                             isActive
-                              ? "bg-primary/10 text-primary border-l-[3px] border-primary"
-                              : "text-muted-foreground hover:bg-accent hover:text-foreground border-l-[3px] border-transparent"
+                              ? "bg-primary/10 text-primary"
+                              : "text-muted-foreground hover:bg-accent hover:text-foreground"
                           }`}
                         >
                           {Icon && <Icon className="h-3.5 w-3.5" />}
@@ -222,8 +222,8 @@ export function TemplateSidebar({
             onClick={onEditGlobal}
             className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-all duration-150 ${
               editingGlobal
-                ? "bg-primary/10 text-primary font-medium border-l-[3px] border-primary ml-0"
-                : "text-muted-foreground hover:bg-accent hover:text-foreground border-l-[3px] border-transparent"
+                ? "bg-primary/10 text-primary font-medium"
+                : "text-muted-foreground hover:bg-accent hover:text-foreground"
             }`}
           >
             <LayoutTemplate className="h-3.5 w-3.5 shrink-0" />
@@ -245,8 +245,8 @@ export function TemplateSidebar({
                 onClick={() => onTypeChange(t.id)}
                 className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-all duration-150 ${
                   isActive
-                    ? "bg-primary/10 text-primary font-medium border-l-[3px] border-primary"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground border-l-[3px] border-transparent"
+                    ? "bg-primary/10 text-primary font-medium"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
                 }`}
               >
                 {Icon && <Icon className="h-3.5 w-3.5 shrink-0" />}
@@ -278,8 +278,8 @@ export function TemplateSidebar({
                   onClick={() => onTypeChange(t.id)}
                   className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-all duration-150 ${
                     isActive
-                      ? "bg-primary/10 text-primary font-medium border-l-[3px] border-primary"
-                      : "text-muted-foreground hover:bg-accent hover:text-foreground border-l-[3px] border-transparent"
+                      ? "bg-primary/10 text-primary font-medium"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   }`}
                 >
                   {Icon && <Icon className="h-3.5 w-3.5 shrink-0" />}
