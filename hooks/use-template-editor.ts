@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import type {
   TemplateType,
   TemplateVariant,
@@ -11,6 +11,7 @@ import type {
   EmailTemplate,
 } from "@/lib/types";
 import { DEFAULT_STYLE } from "@/lib/types";
+import type { PersistedData } from "@/lib/persistence";
 import {
   emailTemplates,
   defaultGlobalTemplate,
@@ -23,6 +24,7 @@ import {
 import { composeEmail, applyStyleTokens } from "@/lib/utils";
 
 export function useTemplateEditor() {
+  const [isLoaded, setIsLoaded] = useState(false);
   const [selectedType, setSelectedType] = useState<TemplateType>("confirm-signup");
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [editingGlobal, setEditingGlobal] = useState(false);
@@ -59,6 +61,54 @@ export function useTemplateEditor() {
       return ids;
     }
   );
+
+  // Load persisted data on mount
+  useEffect(() => {
+    fetch("/api/templates")
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.saved) {
+          const d = result.data as PersistedData;
+          setTemplates(d.templates);
+          setGlobalTemplate(d.globalTemplate);
+          setTemplateStyle(d.templateStyle);
+          setCustomTemplateTypes(d.customTemplateTypes);
+          setCustomVariables(d.customVariables);
+          setActiveVariantIds(d.activeVariantIds);
+        }
+      })
+      .catch((err) => console.error("Failed to load templates:", err))
+      .finally(() => setIsLoaded(true));
+  }, []);
+
+  // Debounced auto-save
+  const isFirstSave = useRef(true);
+  useEffect(() => {
+    if (!isLoaded) return;
+    // Skip the first render after load to avoid saving the data we just loaded
+    if (isFirstSave.current) {
+      isFirstSave.current = false;
+      return;
+    }
+    const timer = setTimeout(() => {
+      const payload: PersistedData = {
+        version: 1,
+        lastModified: new Date().toISOString(),
+        templates,
+        globalTemplate,
+        templateStyle,
+        customTemplateTypes,
+        customVariables,
+        activeVariantIds,
+      };
+      fetch("/api/templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }).catch((err) => console.error("Failed to save templates:", err));
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [isLoaded, templates, globalTemplate, templateStyle, customTemplateTypes, customVariables, activeVariantIds]);
 
   // Merged template types and variables
   const allTemplateTypes = useMemo(
@@ -332,6 +382,7 @@ export function useTemplateEditor() {
   );
 
   return {
+    isLoaded,
     selectedType,
     device,
     setDevice,

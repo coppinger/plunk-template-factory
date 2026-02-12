@@ -1,6 +1,6 @@
 # Plunk Template Factory
 
-Visual editor for Supabase Auth email templates. Single-page Next.js app with a fixed sidebar + two-panel resizable layout: template sidebar, live preview, and code editor.
+Visual editor for Supabase Auth email templates and custom email templates. Single-page Next.js app with a fixed sidebar + two-panel resizable layout: template sidebar, live preview, and code editor.
 
 ## Commands
 
@@ -26,20 +26,21 @@ app/
 
 components/
   layout/
-    app-header.tsx        # Top bar: logo, template type selector, copy/export buttons
-    template-sidebar.tsx  # Fixed left sidebar (320px, collapsible to 48px): template type list + variable quick-copy
+    app-header.tsx        # Top bar: logo, grouped template type selector (by category), copy/export buttons
+    template-sidebar.tsx  # Fixed left sidebar (320px, collapsible to 48px): templates grouped by category, variable quick-copy, new/delete custom template buttons
     preview-canvas.tsx    # Center resizable panel (40% default): iframe preview with desktop/mobile toggle
     editor-panel.tsx      # Right resizable panel (60% default): tabbed Edit/Variables/Variants panes
+    create-custom-template-dialog.tsx  # Dialog for creating custom template types with name, description, icon, and variable rows
   editor/
     code-editor.tsx       # CodeMirror wrapper for HTML editing
   ui/                     # ShadCN components (badge, button, card, dialog, etc.)
 
 hooks/
-  use-template-editor.ts  # Core state hook: template selection, variant CRUD, HTML/subject editing, copy/export
+  use-template-editor.ts  # Core state hook: template selection, variant CRUD, HTML/subject editing, copy/export, custom template CRUD
 
 lib/
-  types.ts      # TemplateType union, EmailTemplate, TemplateVariant, SupabaseVariable interfaces
-  mock-data.ts  # 6 template types with HTML content, Supabase template variables
+  types.ts      # SupabaseTemplateType, CustomTemplateType, TemplateType union, TemplateCategory, TemplateVariable, isCustomTemplate() helper
+  mock-data.ts  # 6 built-in Supabase template types, seed custom templates, templateVariables, seed custom variables
   utils.ts      # cn() helper (clsx + tailwind-merge)
 ```
 
@@ -53,11 +54,16 @@ lib/
 
 ## Template Types
 
-Six Supabase auth email templates: `confirm-signup`, `invite-user`, `magic-link`, `change-email`, `reset-password`, `reauthentication`. Defined as the `TemplateType` union in `lib/types.ts`.
+Two categories of templates, distinguished by `TemplateCategory` (`"supabase-auth"` | `"custom"`):
 
-## Supabase Variables
+- **Supabase Auth** (built-in): Six types defined as `SupabaseTemplateType` -- `confirm-signup`, `invite-user`, `magic-link`, `change-email`, `reset-password`, `reauthentication`. Listed in the `SUPABASE_TEMPLATE_TYPES` constant.
+- **Custom**: User-created templates with `CustomTemplateType` (pattern: `custom-${string}`). Identified at runtime via `isCustomTemplate()` helper. Custom templates can be added and deleted; built-in templates cannot.
 
-Templates use Go template syntax: `{{ .ConfirmationURL }}`, `{{ .Token }}`, `{{ .TokenHash }}`, `{{ .SiteURL }}`, `{{ .Email }}`, `{{ .NewEmail }}`, `{{ .RedirectTo }}`. Each variable has an `availableFor` list mapping it to applicable template types.
+`TemplateType` is the union of both: `SupabaseTemplateType | CustomTemplateType`. Each `TemplateTypeInfo` has `category` and `isBuiltIn` fields.
+
+## Template Variables
+
+Supabase templates use Go template syntax: `{{ .ConfirmationURL }}`, `{{ .Token }}`, etc. Custom templates use `{{variableName}}` syntax (no dot prefix). Both use the `TemplateVariable` interface (renamed from `SupabaseVariable`, deprecated alias kept). Each variable has an `availableFor` list mapping it to applicable template types.
 
 ## Variant System
 
