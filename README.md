@@ -1,17 +1,21 @@
 # Plunk Template Factory
 
-A visual editor for crafting Supabase Auth email templates. Design, preview, and export production-ready HTML emails without writing code from scratch.
+A visual editor for Supabase Auth email templates and custom email templates. Design, preview, and export production-ready HTML emails without writing code from scratch.
 
 ## Features
 
-- **Six Supabase Auth templates** — Confirm signup, invite user, magic link, change email, reset password, and reauthentication
-- **Live preview** — See your changes instantly in a sandboxed iframe with desktop/mobile toggle
+- **Supabase Auth templates** — All six built-in types: confirm signup, invite user, magic link, change email, reset password, and reauthentication
+- **Custom templates** — Create your own template types with custom names, descriptions, icons, and variables
+- **Live preview** — See changes instantly in a sandboxed iframe with desktop/mobile toggle
 - **Code editor** — Full HTML editing powered by CodeMirror with syntax highlighting
 - **Global layout** — Edit a shared HTML wrapper once, apply it across all templates
 - **Style tokens** — Customize brand colors, fonts, button styles, and spacing from a visual panel
 - **Variant system** — Create, duplicate, and manage multiple design variants per template
-- **Supabase variables** — Quick-copy Go template variables (`{{ .ConfirmationURL }}`, `{{ .Token }}`, etc.) with per-template availability hints
+- **Template variables** — Quick-copy Go template variables for Supabase (`{{ .ConfirmationURL }}`) or custom `{{variableName}}` syntax, with per-template availability hints
+- **Auto-save** — Editor state persists to a local JSON file automatically with 1-second debounce
 - **Export** — Copy to clipboard or download the composed HTML, ready to paste into your Supabase dashboard
+- **Dark mode** — Full dark mode support
+- **Collapsible sidebar** — Fixed sidebar (320px) that collapses to 48px for more editing space
 
 ## Getting Started
 
@@ -36,32 +40,40 @@ Open [http://localhost:3000](http://localhost:3000) to start editing templates.
 
 ```
 app/
-  layout.tsx          # Root layout with fonts and providers
-  page.tsx            # Main page — three-panel editor layout
+  layout.tsx          # Root layout with DM Sans/Mono fonts, TooltipProvider
+  page.tsx            # Main page — fixed sidebar + resizable preview/editor panels
   globals.css         # Tailwind + ShadCN CSS variables
+  api/templates/
+    route.ts          # GET/POST API: reads/writes data/templates.json for persistence
 
 components/
   layout/
-    app-header.tsx        # Top bar: template selector, copy/export actions
-    template-sidebar.tsx  # Left panel: template list + variable reference
-    preview-canvas.tsx    # Center panel: live iframe preview
-    editor-panel.tsx      # Right panel: code editor, variants, style controls
+    app-header.tsx                     # Top bar: logo, template type selector, copy/export
+    template-sidebar.tsx               # Fixed sidebar: templates grouped by category, variable quick-copy
+    preview-canvas.tsx                 # Center panel: live iframe preview with device toggle
+    editor-panel.tsx                   # Right panel: tabbed Edit/Variables/Variants panes
+    create-custom-template-dialog.tsx  # Dialog for creating custom template types
+    delete-variant-dialog.tsx          # Confirmation dialog for variant deletion
   editor/
-    code-editor.tsx       # CodeMirror wrapper
-  ui/                     # ShadCN components
+    code-editor.tsx   # CodeMirror wrapper for HTML editing
+  ui/                 # ShadCN components
 
 hooks/
-  use-template-editor.ts  # All editor state: templates, variants, styles
+  use-template-editor.ts  # Core state: template selection, variant CRUD, persistence
 
 lib/
-  types.ts      # TypeScript types and default style config
-  mock-data.ts  # Template content and Supabase variable definitions
-  utils.ts      # Utilities (cn helper, style token application)
+  types.ts         # Template type definitions, categories, variable interfaces
+  persistence.ts   # PersistedData schema and validation
+  mock-data.ts     # Seed template content, variables, and custom template definitions
+  format-html.ts   # HTML formatting utilities
+  utils.ts         # cn() helper, dedent(), composeEmail(), applyStyleTokens()
 ```
 
 ## How It Works
 
-The app is entirely client-side — no backend, no database, no API routes. All state lives in a single `useTemplateEditor` hook. Templates are composed by injecting body content into a global HTML layout, with style tokens replaced at render time. The result is a self-contained HTML email you can paste directly into your Supabase Auth email template settings.
+The UI is entirely client-side — all editor state lives in a single `useTemplateEditor` hook. Templates are composed by injecting body content into a global HTML layout, with style tokens replaced at render time. The result is a self-contained HTML email you can paste directly into your Supabase Auth email template settings or use for custom email flows.
+
+State is persisted to a local JSON file (`data/templates.json`, gitignored) via a Next.js API route. On first load, the editor falls back to seed data from `lib/mock-data.ts`. Changes auto-save with a 1-second debounce.
 
 ## Contributing
 

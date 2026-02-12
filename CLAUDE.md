@@ -44,7 +44,7 @@ lib/
   types.ts         # SupabaseTemplateType, CustomTemplateType, TemplateType union, TemplateCategory, TemplateVariable, isCustomTemplate() helper
   persistence.ts   # PersistedData interface (version, templates, globalTemplate, templateStyle, custom types/variables, activeVariantIds) + isValidPersistedData() type guard
   mock-data.ts     # 6 built-in Supabase template types, seed custom templates, templateVariables, seed custom variables
-  utils.ts         # cn() helper (clsx + tailwind-merge)
+  utils.ts         # cn() helper, dedent() for stripping template literal indentation, composeEmail() + applyStyleTokens()
 ```
 
 ## Architecture
@@ -52,7 +52,7 @@ lib/
 - **Client-side UI**: `page.tsx` is `"use client"`. No server actions, no database.
 - **State management**: All editor state lives in `useTemplateEditor` hook. No external state libraries.
 - **Persistence**: Editor state is saved to a local JSON file (`data/templates.json`, gitignored) via `app/api/templates/route.ts`. On mount the hook fetches `GET /api/templates` and falls back to mock data if no file exists. State changes auto-save with a 1-second debounce via `POST /api/templates`. The `PersistedData` schema is versioned (`version: 1`) and validated by `isValidPersistedData()`. The hook exposes an `isLoaded` flag so the UI can wait for hydration.
-- **Mock/seed data**: `lib/mock-data.ts` provides initial template content and variables used when no persisted file is present.
+- **Mock/seed data**: `lib/mock-data.ts` provides initial template content and variables used when no persisted file is present. Template body HTML strings are wrapped in `dedent()` to strip source-code indentation; new templates should follow this pattern.
 - **Live preview**: Renders HTML in a sandboxed iframe (`allow-same-origin`).
 - **Path aliases**: `@/*` maps to project root.
 
