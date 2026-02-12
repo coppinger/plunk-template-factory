@@ -26,7 +26,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ProjectSwitcher } from "@/components/layout/project-switcher";
 import type { TemplateType, TemplateTypeInfo } from "@/lib/types";
 import type { ProjectListItem } from "@/lib/persistence";
-import { Copy, Download, Mail, LayoutTemplate, ChevronRight, FileDown, FileUp, LogOut } from "lucide-react";
+import { Copy, Download, Mail, LayoutTemplate, ChevronRight, ChevronDown, FileDown, FileUp, LogOut, FileText, FileCode } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
 interface AppHeaderProps {
@@ -35,6 +35,8 @@ interface AppHeaderProps {
   onTypeChange: (type: TemplateType) => void;
   onExport: () => void;
   onCopy: () => void;
+  onCopyPlainText: () => void;
+  onExportPlainText: () => void;
   activeVariantName?: string;
   allTemplateTypes: TemplateTypeInfo[];
   onExportJson: () => void;
@@ -56,6 +58,8 @@ export function AppHeader({
   onTypeChange,
   onExport,
   onCopy,
+  onCopyPlainText,
+  onExportPlainText,
   activeVariantName,
   allTemplateTypes,
   onExportJson,
@@ -148,38 +152,52 @@ export function AppHeader({
 
       <div className="ml-auto flex items-center gap-1">
         <div className="mr-1 h-4 w-px bg-border/30" />
-        <Tooltip>
-          <TooltipTrigger asChild>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
               size="sm"
               className="h-7 text-[13px] gap-1.5 text-muted-foreground hover:text-foreground border-border/40"
-              onClick={onCopy}
             >
               <Copy className="h-3 w-3" />
               Copy
+              <ChevronDown className="h-3 w-3 opacity-50" />
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <span className="text-xs">Copy HTML <kbd className="ml-1.5 rounded bg-white/10 px-1 py-0.5 font-mono text-[10px]">Ctrl+Shift+C</kbd></span>
-          </TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={onCopy}>
+              <FileCode className="h-3.5 w-3.5 mr-2" />
+              Copy HTML
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onCopyPlainText}>
+              <FileText className="h-3.5 w-3.5 mr-2" />
+              Copy Plain Text
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
               size="sm"
               className="h-7 text-[13px] gap-1.5 text-muted-foreground hover:text-foreground border-border/40"
-              onClick={onExport}
             >
               <Download className="h-3 w-3" />
               Export
+              <ChevronDown className="h-3 w-3 opacity-50" />
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <span className="text-xs">Export HTML <kbd className="ml-1.5 rounded bg-white/10 px-1 py-0.5 font-mono text-[10px]">Ctrl+Shift+E</kbd></span>
-          </TooltipContent>
-        </Tooltip>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={onExport}>
+              <FileCode className="h-3.5 w-3.5 mr-2" />
+              Export HTML
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onExportPlainText}>
+              <FileText className="h-3.5 w-3.5 mr-2" />
+              Export Plain Text
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <div className="mx-1 h-4 w-px bg-border/30" />
 

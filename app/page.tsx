@@ -41,6 +41,7 @@ export default function Home() {
   const editorRef = useRef<ReactCodeMirrorRef>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [previewMode, setPreviewMode] = useState<"html" | "text">("html");
 
   const handleCopy = useCallback(() => {
     editor.copyHtml();
@@ -50,6 +51,16 @@ export default function Home() {
   const handleExport = useCallback(() => {
     editor.exportHtml();
     toast.success("Template exported as HTML");
+  }, [editor]);
+
+  const handleCopyPlainText = useCallback(() => {
+    editor.copyPlainText();
+    toast.success("Plain text copied to clipboard");
+  }, [editor]);
+
+  const handleExportPlainText = useCallback(() => {
+    editor.exportPlainText();
+    toast.success("Template exported as plain text");
   }, [editor]);
 
   const handleVariantCreate = useCallback(() => {
@@ -149,6 +160,7 @@ export default function Home() {
     () => ({
       "mod+shift+c": handleCopy,
       "mod+shift+e": handleExport,
+      "mod+shift+t": handleCopyPlainText,
       "mod+b": toggleSidebar,
       "mod+shift+d": () => {
         editor.setDevice(editor.device === "desktop" ? "mobile" : "desktop");
@@ -160,7 +172,7 @@ export default function Home() {
       "mod+5": () => SUPABASE_TEMPLATE_TYPES[4] && editor.changeType(SUPABASE_TEMPLATE_TYPES[4] as TemplateType),
       "mod+6": () => SUPABASE_TEMPLATE_TYPES[5] && editor.changeType(SUPABASE_TEMPLATE_TYPES[5] as TemplateType),
     }),
-    [handleCopy, handleExport, toggleSidebar, editor]
+    [handleCopy, handleExport, handleCopyPlainText, toggleSidebar, editor]
   );
 
   useKeyboardShortcuts(shortcuts);
@@ -208,6 +220,8 @@ export default function Home() {
         onTypeChange={editor.changeType}
         onExport={handleExport}
         onCopy={handleCopy}
+        onCopyPlainText={handleCopyPlainText}
+        onExportPlainText={handleExportPlainText}
         activeVariantName={editor.activeVariant.name}
         allTemplateTypes={editor.allTemplateTypes}
         onExportJson={handleExportJson}
@@ -250,6 +264,9 @@ export default function Home() {
                   ? applyStyleTokens(editor.globalTemplate.html, editor.templateStyle)
                   : editor.composedHtml
               }
+              plainText={editor.composedPlainText}
+              previewMode={previewMode}
+              onPreviewModeChange={setPreviewMode}
               device={editor.device}
               onDeviceChange={editor.setDevice}
               zoom={editor.zoom}

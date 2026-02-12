@@ -23,6 +23,7 @@ import {
   seedCustomEmailTemplates,
 } from "@/lib/mock-data";
 import { composeEmail, applyStyleTokens, dedent } from "@/lib/utils";
+import { htmlToPlainText } from "@/lib/html-to-plain-text";
 import type { User } from "@supabase/supabase-js";
 
 interface AuthState {
@@ -229,6 +230,15 @@ export function useTemplateEditor(authState: AuthState, projectId: string | null
     [globalTemplate.html, currentTemplate.bodyHtml, templateStyle]
   );
 
+  const [composedPlainText, setComposedPlainText] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      htmlToPlainText(composedHtml).then(setComposedPlainText).catch(() => {});
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [composedHtml]);
+
   const variantCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const t of templates) {
@@ -405,6 +415,21 @@ export function useTemplateEditor(authState: AuthState, projectId: string | null
     URL.revokeObjectURL(url);
   }, [editingGlobal, globalTemplate.html, composedHtml, selectedType, templateStyle]);
 
+  const copyPlainText = useCallback(() => {
+    navigator.clipboard.writeText(composedPlainText);
+  }, [composedPlainText]);
+
+  const exportPlainText = useCallback(() => {
+    const filename = editingGlobal ? "base-template.txt" : `${selectedType}-template.txt`;
+    const blob = new Blob([composedPlainText], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [composedPlainText, editingGlobal, selectedType]);
+
   const zoomIn = useCallback(() => {
     setZoom((prev) => Math.min(2, Math.round((prev + 0.1) * 10) / 10));
   }, []);
@@ -489,6 +514,9 @@ export function useTemplateEditor(authState: AuthState, projectId: string | null
     renameVariant,
     copyHtml,
     exportHtml,
+    composedPlainText,
+    copyPlainText,
+    exportPlainText,
     // Global template additions
     editingGlobal,
     editGlobal,

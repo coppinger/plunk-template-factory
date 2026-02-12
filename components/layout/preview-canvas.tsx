@@ -7,10 +7,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Monitor, Smartphone, ZoomIn, ZoomOut } from "lucide-react";
+import { Monitor, Smartphone, ZoomIn, ZoomOut, Code, FileText } from "lucide-react";
 
 interface PreviewCanvasProps {
   html: string;
+  plainText: string;
+  previewMode: "html" | "text";
+  onPreviewModeChange: (mode: "html" | "text") => void;
   device: "desktop" | "mobile";
   onDeviceChange: (device: "desktop" | "mobile") => void;
   zoom: number;
@@ -21,6 +24,9 @@ interface PreviewCanvasProps {
 
 export function PreviewCanvas({
   html,
+  plainText,
+  previewMode,
+  onPreviewModeChange,
   device,
   onDeviceChange,
   zoom,
@@ -42,17 +48,41 @@ export function PreviewCanvas({
             transformOrigin: "top center",
           }}
         >
-          <iframe
-            srcDoc={html}
-            title="Email preview"
-            className="w-full border-0"
-            style={{ height: 700, width: "100%" }}
-            sandbox="allow-same-origin"
-          />
+          {previewMode === "html" ? (
+            <iframe
+              srcDoc={html}
+              title="Email preview"
+              className="w-full border-0"
+              style={{ height: 700, width: "100%" }}
+              sandbox="allow-same-origin"
+            />
+          ) : (
+            <pre className="w-full p-6 text-[13px] leading-relaxed text-neutral-800 font-mono whitespace-pre-wrap break-words overflow-auto" style={{ minHeight: 700 }}>
+              {plainText}
+            </pre>
+          )}
         </div>
       </div>
 
       <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2">
+        <ToggleGroup
+          type="single"
+          value={previewMode}
+          onValueChange={(v) => {
+            if (v) onPreviewModeChange(v as "html" | "text");
+          }}
+          className="gap-0.5 rounded-full bg-[#141418]/95 backdrop-blur-md p-1 border border-border/40 elevation-2"
+        >
+          <ToggleGroupItem value="html" className="h-7 px-3 text-[13px] gap-1.5 rounded-full data-[state=on]:bg-white/[0.08] data-[state=on]:text-foreground text-muted-foreground transition-all duration-150">
+            <Code className="h-3 w-3" />
+            HTML
+          </ToggleGroupItem>
+          <ToggleGroupItem value="text" className="h-7 px-3 text-[13px] gap-1.5 rounded-full data-[state=on]:bg-white/[0.08] data-[state=on]:text-foreground text-muted-foreground transition-all duration-150">
+            <FileText className="h-3 w-3" />
+            Text
+          </ToggleGroupItem>
+        </ToggleGroup>
+
         <ToggleGroup
           type="single"
           value={device}
