@@ -6,7 +6,9 @@ import { TemplateSidebar } from "@/components/layout/template-sidebar";
 import { PreviewCanvas } from "@/components/layout/preview-canvas";
 import { EditorPanel } from "@/components/layout/editor-panel";
 import { CreateCustomTemplateDialog } from "@/components/layout/create-custom-template-dialog";
+import { AuthDialog } from "@/components/layout/auth-dialog";
 import { useTemplateEditor } from "@/hooks/use-template-editor";
+import { useAuth } from "@/hooks/use-auth";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { applyStyleTokens } from "@/lib/utils";
 import { SUPABASE_TEMPLATE_TYPES } from "@/lib/types";
@@ -18,9 +20,15 @@ import {
   ResizableHandle,
 } from "@/components/ui/resizable";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 export default function Home() {
-  const editor = useTemplateEditor();
+  const auth = useAuth();
+  const editor = useTemplateEditor({
+    isAuthenticated: auth.isAuthenticated,
+    user: auth.user,
+    loading: auth.loading,
+  });
   const editorRef = useRef<ReactCodeMirrorRef>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -44,6 +52,23 @@ export default function Home() {
     (id: string) => {
       editor.duplicateVariant(id);
       toast.success("Variant duplicated");
+    },
+    [editor]
+  );
+
+  const handleExportJson = useCallback(() => {
+    editor.exportJson();
+    toast.success("Templates exported as JSON");
+  }, [editor]);
+
+  const handleImportJson = useCallback(
+    async (file: File) => {
+      const success = await editor.importJson(file);
+      if (success) {
+        toast.success("Templates imported successfully");
+      } else {
+        toast.error("Invalid template file");
+      }
     },
     [editor]
   );
@@ -79,6 +104,24 @@ export default function Home() {
 
   useKeyboardShortcuts(shortcuts);
 
+  // Loading state
+  if (auth.loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // Auth gate
+  if (!auth.isAuthenticated) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <AuthDialog onSignIn={auth.signIn} onSignUp={auth.signUp} />
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen flex-col overflow-hidden">
       <AppHeader
@@ -89,6 +132,10 @@ export default function Home() {
         onCopy={handleCopy}
         activeVariantName={editor.activeVariant.name}
         allTemplateTypes={editor.allTemplateTypes}
+        onExportJson={handleExportJson}
+        onImportJson={handleImportJson}
+        user={auth.user}
+        onSignOut={auth.signOut}
       />
 
       <div className="flex flex-1 overflow-hidden">

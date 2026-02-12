@@ -12,6 +12,7 @@ import type {
 } from "@/lib/types";
 import { DEFAULT_STYLE } from "@/lib/types";
 import type { PersistedData } from "@/lib/persistence";
+import { isValidPersistedData } from "@/lib/persistence";
 import {
   emailTemplates,
   defaultGlobalTemplate,
@@ -22,8 +23,15 @@ import {
   seedCustomEmailTemplates,
 } from "@/lib/mock-data";
 import { composeEmail, applyStyleTokens, dedent } from "@/lib/utils";
+import type { User } from "@supabase/supabase-js";
 
-export function useTemplateEditor() {
+interface AuthState {
+  isAuthenticated: boolean;
+  user: User | null;
+  loading: boolean;
+}
+
+export function useTemplateEditor(authState: AuthState) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectedType, setSelectedType] = useState<TemplateType>("confirm-signup");
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
@@ -62,53 +70,93 @@ export function useTemplateEditor() {
     }
   );
 
-  // Load persisted data on mount
+  // Shared helpers for load/import and save/export
+  const applyPersistedData = useCallback((d: PersistedData) => {
+    setTemplates(d.templates);
+    setGlobalTemplate(d.globalTemplate);
+    setTemplateStyle(d.templateStyle);
+    setCustomTemplateTypes(d.customTemplateTypes);
+    setCustomVariables(d.customVariables);
+    setActiveVariantIds(d.activeVariantIds);
+  }, []);
+
+  const getPersistedData = useCallback((): PersistedData => {
+    return {
+      version: 1,
+      lastModified: new Date().toISOString(),
+      templates,
+      globalTemplate,
+      templateStyle,
+      customTemplateTypes,
+      customVariables,
+      activeVariantIds,
+    };
+  }, [templates, globalTemplate, templateStyle, customTemplateTypes, customVariables, activeVariantIds]);
+
+  // Load persisted data on mount (wait for auth)
   useEffect(() => {
+    if (authState.loading) return;
+    if (!authState.isAuthenticated) return;
+
     fetch("/api/templates")
       .then((res) => res.json())
       .then((result) => {
         if (result.saved) {
-          const d = result.data as PersistedData;
-          setTemplates(d.templates);
-          setGlobalTemplate(d.globalTemplate);
-          setTemplateStyle(d.templateStyle);
-          setCustomTemplateTypes(d.customTemplateTypes);
-          setCustomVariables(d.customVariables);
-          setActiveVariantIds(d.activeVariantIds);
+          applyPersistedData(result.data as PersistedData);
         }
       })
       .catch((err) => console.error("Failed to load templates:", err))
       .finally(() => setIsLoaded(true));
-  }, []);
+  }, [authState.loading, authState.isAuthenticated, applyPersistedData]);
 
   // Debounced auto-save
   const isFirstSave = useRef(true);
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!isLoaded || !authState.isAuthenticated) return;
     // Skip the first render after load to avoid saving the data we just loaded
     if (isFirstSave.current) {
       isFirstSave.current = false;
       return;
     }
     const timer = setTimeout(() => {
-      const payload: PersistedData = {
-        version: 1,
-        lastModified: new Date().toISOString(),
-        templates,
-        globalTemplate,
-        templateStyle,
-        customTemplateTypes,
-        customVariables,
-        activeVariantIds,
-      };
       fetch("/api/templates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(getPersistedData()),
       }).catch((err) => console.error("Failed to save templates:", err));
     }, 1000);
     return () => clearTimeout(timer);
-  }, [isLoaded, templates, globalTemplate, templateStyle, customTemplateTypes, customVariables, activeVariantIds]);
+  }, [isLoaded, authState.isAuthenticated, templates, globalTemplate, templateStyle, customTemplateTypes, customVariables, activeVariantIds, getPersistedData]);
+
+  // JSON export/import
+  const exportJson = useCallback(() => {
+    const data = getPersistedData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const date = new Date().toISOString().split("T")[0];
+    a.download = `plunk-templates-${date}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [getPersistedData]);
+
+  const importJson = useCallback(
+    async (file: File): Promise<boolean> => {
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (!isValidPersistedData(data)) {
+          return false;
+        }
+        applyPersistedData(data);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [applyPersistedData]
+  );
 
   // Merged template types and variables
   const allTemplateTypes = useMemo(
@@ -419,5 +467,8 @@ export function useTemplateEditor() {
     allVariables,
     addCustomTemplateType,
     deleteCustomTemplateType,
+    // JSON export/import
+    exportJson,
+    importJson,
   };
 }

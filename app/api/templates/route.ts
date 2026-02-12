@@ -1,19 +1,33 @@
 import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
+import { createClient } from "@/lib/supabase/server";
 import { isValidPersistedData } from "@/lib/persistence";
-
-const DATA_DIR = path.join(process.cwd(), "data");
-const DATA_FILE = path.join(DATA_DIR, "templates.json");
 
 export async function GET() {
   try {
-    const raw = await fs.readFile(DATA_FILE, "utf-8");
-    const data = JSON.parse(raw);
-    if (!isValidPersistedData(data)) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { data, error } = await supabase
+      .from("user_templates")
+      .select("data")
+      .eq("user_id", user.id)
+      .single();
+
+    if (error || !data) {
       return NextResponse.json({ saved: false });
     }
-    return NextResponse.json({ saved: true, data });
+
+    if (!isValidPersistedData(data.data)) {
+      return NextResponse.json({ saved: false });
+    }
+
+    return NextResponse.json({ saved: true, data: data.data });
   } catch {
     return NextResponse.json({ saved: false });
   }
@@ -21,17 +35,32 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     if (!isValidPersistedData(body)) {
       return NextResponse.json({ error: "Invalid data" }, { status: 400 });
     }
 
-    await fs.mkdir(DATA_DIR, { recursive: true });
+    const { error } = await supabase.from("user_templates").upsert(
+      {
+        user_id: user.id,
+        data: body,
+      },
+      { onConflict: "user_id" }
+    );
 
-    // Atomic write: write to temp file, then rename
-    const tmpFile = path.join(DATA_DIR, `templates.tmp.${Date.now()}.json`);
-    await fs.writeFile(tmpFile, JSON.stringify(body, null, 2), "utf-8");
-    await fs.rename(tmpFile, DATA_FILE);
+    if (error) {
+      console.error("Failed to save templates:", error);
+      return NextResponse.json({ error: "Failed to save" }, { status: 500 });
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {

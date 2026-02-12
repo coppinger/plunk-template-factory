@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import {
   Select,
   SelectContent,
@@ -15,8 +16,16 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { TemplateType, TemplateTypeInfo } from "@/lib/types";
-import { Copy, Download, Mail, LayoutTemplate, ChevronRight } from "lucide-react";
+import { Copy, Download, Mail, LayoutTemplate, ChevronRight, FileDown, FileUp, LogOut } from "lucide-react";
+import type { User } from "@supabase/supabase-js";
 
 interface AppHeaderProps {
   selectedType: TemplateType;
@@ -26,6 +35,10 @@ interface AppHeaderProps {
   onCopy: () => void;
   activeVariantName?: string;
   allTemplateTypes: TemplateTypeInfo[];
+  onExportJson: () => void;
+  onImportJson: (file: File) => void;
+  user: User | null;
+  onSignOut: () => void;
 }
 
 export function AppHeader({
@@ -36,9 +49,18 @@ export function AppHeader({
   onCopy,
   activeVariantName,
   allTemplateTypes,
+  onExportJson,
+  onImportJson,
+  user,
+  onSignOut,
 }: AppHeaderProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const supabaseTypes = allTemplateTypes.filter((t) => t.category === "supabase-auth");
   const customTypes = allTemplateTypes.filter((t) => t.category === "custom");
+
+  const userInitials = user?.email
+    ? user.email.substring(0, 2).toUpperCase()
+    : "??";
 
   return (
     <header className="flex h-14 shrink-0 items-center border-b border-border/40 bg-[#111114] px-4 shadow-[0_1px_0_rgba(0,0,0,0.3)]">
@@ -130,6 +152,77 @@ export function AppHeader({
             <span className="text-xs">Export HTML <kbd className="ml-1.5 rounded bg-white/10 px-1 py-0.5 font-mono text-[10px]">Ctrl+Shift+E</kbd></span>
           </TooltipContent>
         </Tooltip>
+
+        <div className="mx-1 h-4 w-px bg-border/30" />
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-[13px] gap-1.5 text-muted-foreground hover:text-foreground border-border/40"
+              onClick={onExportJson}
+            >
+              <FileDown className="h-3 w-3" />
+              Save
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <span className="text-xs">Save all templates as JSON</span>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-[13px] gap-1.5 text-muted-foreground hover:text-foreground border-border/40"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <FileUp className="h-3 w-3" />
+              Load
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <span className="text-xs">Load templates from JSON</span>
+          </TooltipContent>
+        </Tooltip>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              onImportJson(file);
+              e.target.value = "";
+            }
+          }}
+        />
+
+        <div className="mx-1 h-4 w-px bg-border/30" />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-7 gap-2 px-1.5 text-muted-foreground hover:text-foreground">
+              <Avatar className="h-5 w-5">
+                <AvatarFallback className="text-[10px] bg-primary/[0.12] text-primary">
+                  {userInitials}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-[12px] max-w-[140px] truncate hidden sm:inline">
+                {user?.email}
+              </span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={onSignOut}>
+              <LogOut className="h-3.5 w-3.5 mr-2" />
+              Sign Out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
