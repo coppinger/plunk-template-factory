@@ -23,6 +23,8 @@ app/
   layout.tsx          # Root layout with DM Sans/Mono fonts, TooltipProvider wrapper
   page.tsx            # Main page - fixed sidebar + resizable preview/editor, wires useTemplateEditor
   globals.css         # Tailwind + ShadCN CSS variables (neutral base color)
+  api/templates/
+    route.ts          # GET/POST API route: reads/writes data/templates.json (atomic writes via temp+rename)
 
 components/
   layout/
@@ -36,19 +38,21 @@ components/
   ui/                     # ShadCN components (badge, button, card, dialog, etc.)
 
 hooks/
-  use-template-editor.ts  # Core state hook: template selection, variant CRUD, HTML/subject editing, copy/export, custom template CRUD
+  use-template-editor.ts  # Core state hook: template selection, variant CRUD, HTML/subject editing, copy/export, custom template CRUD, load/auto-save persistence
 
 lib/
-  types.ts      # SupabaseTemplateType, CustomTemplateType, TemplateType union, TemplateCategory, TemplateVariable, isCustomTemplate() helper
-  mock-data.ts  # 6 built-in Supabase template types, seed custom templates, templateVariables, seed custom variables
-  utils.ts      # cn() helper (clsx + tailwind-merge)
+  types.ts         # SupabaseTemplateType, CustomTemplateType, TemplateType union, TemplateCategory, TemplateVariable, isCustomTemplate() helper
+  persistence.ts   # PersistedData interface (version, templates, globalTemplate, templateStyle, custom types/variables, activeVariantIds) + isValidPersistedData() type guard
+  mock-data.ts     # 6 built-in Supabase template types, seed custom templates, templateVariables, seed custom variables
+  utils.ts         # cn() helper (clsx + tailwind-merge)
 ```
 
 ## Architecture
 
-- **Client-only app**: `page.tsx` is `"use client"`. No server actions, no database, no API routes.
+- **Client-side UI**: `page.tsx` is `"use client"`. No server actions, no database.
 - **State management**: All editor state lives in `useTemplateEditor` hook. No external state libraries.
-- **Template data**: Currently uses mock data in `lib/mock-data.ts`. No backend persistence.
+- **Persistence**: Editor state is saved to a local JSON file (`data/templates.json`, gitignored) via `app/api/templates/route.ts`. On mount the hook fetches `GET /api/templates` and falls back to mock data if no file exists. State changes auto-save with a 1-second debounce via `POST /api/templates`. The `PersistedData` schema is versioned (`version: 1`) and validated by `isValidPersistedData()`. The hook exposes an `isLoaded` flag so the UI can wait for hydration.
+- **Mock/seed data**: `lib/mock-data.ts` provides initial template content and variables used when no persisted file is present.
 - **Live preview**: Renders HTML in a sandboxed iframe (`allow-same-origin`).
 - **Path aliases**: `@/*` maps to project root.
 

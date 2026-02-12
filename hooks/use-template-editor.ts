@@ -21,7 +21,7 @@ import {
   seedCustomVariables,
   seedCustomEmailTemplates,
 } from "@/lib/mock-data";
-import { composeEmail, applyStyleTokens } from "@/lib/utils";
+import { composeEmail, applyStyleTokens, dedent } from "@/lib/utils";
 
 export function useTemplateEditor() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -334,12 +334,12 @@ export function useTemplateEditor() {
       setCustomTemplateTypes((prev) => [...prev, info]);
       setCustomVariables((prev) => [...prev, ...variables]);
 
-      const defaultBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
+      const defaultBody = dedent(`<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
                 ${info.label}
               </h1>
               <p style="margin: 0 0 24px; font-size: {{STYLE_BODY_SIZE}}; line-height: 24px; color: {{STYLE_BODY_COLOR}};">
                 ${info.description}
-              </p>`;
+              </p>`);
 
       const newTemplate: EmailTemplate = {
         type: info.id,

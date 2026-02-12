@@ -13,6 +13,7 @@ import {
   UserCheck,
   UserPlus,
   Sparkles,
+  Mail,
   MailWarning,
   KeyRound,
   ShieldCheck,
@@ -35,6 +36,7 @@ import { useState, type ComponentType } from "react";
 import { toast } from "sonner";
 
 const iconMap: Record<string, ComponentType<{ className?: string }>> = {
+  Mail,
   UserCheck,
   UserPlus,
   Sparkles,

@@ -6,6 +6,24 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/**
+ * Strip common leading whitespace from a template literal string.
+ * Ignores the first line (which is typically empty after the backtick)
+ * and blank lines when computing the indent.
+ */
+export function dedent(str: string): string {
+  const lines = str.split("\n");
+  // Skip the first line and blank lines when computing minimum indent
+  const indents = lines
+    .filter((line, i) => i > 0 && line.trim().length > 0)
+    .map((line) => line.match(/^(\s*)/)?.[1].length ?? 0);
+  const minIndent = indents.length > 0 ? Math.min(...indents) : 0;
+  if (minIndent === 0) return str;
+  return lines
+    .map((line, i) => (i === 0 ? line : line.slice(minIndent)))
+    .join("\n");
+}
+
 export function applyStyleTokens(html: string, style: TemplateStyle): string {
   const tokenMap: Record<string, string> = {
     "{{STYLE_BRAND_NAME}}": style.brandName,

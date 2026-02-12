@@ -5,6 +5,7 @@ import type {
   GlobalTemplate,
 } from "./types";
 import { BODY_PLACEHOLDER } from "./types";
+import { dedent } from "./utils";
 
 export const templateTypes: TemplateTypeInfo[] = [
   {
@@ -269,7 +270,7 @@ export const defaultGlobalTemplate: GlobalTemplate = {
 </html>`,
 };
 
-const confirmSignUpBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
+const confirmSignUpBody = dedent(`<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
                 Confirm your email
               </h1>
               <p style="margin: 0 0 24px; font-size: {{STYLE_BODY_SIZE}}; line-height: 24px; color: {{STYLE_BODY_COLOR}};">
@@ -286,9 +287,9 @@ const confirmSignUpBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADIN
               </table>
               <p style="margin: 24px 0 0; font-size: 13px; line-height: 20px; color: #a1a1aa;">
                 Or use this OTP code: <strong style="color: {{STYLE_HEADING_COLOR}}; font-family: monospace; font-size: 16px; letter-spacing: 0.1em;">{{ .Token }}</strong>
-              </p>`;
+              </p>`);
 
-const inviteUserBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
+const inviteUserBody = dedent(`<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
                 You've been invited
               </h1>
               <p style="margin: 0 0 24px; font-size: {{STYLE_BODY_SIZE}}; line-height: 24px; color: {{STYLE_BODY_COLOR}};">
@@ -305,9 +306,9 @@ const inviteUserBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_S
               </table>
               <p style="margin: 24px 0 0; font-size: 13px; line-height: 20px; color: #a1a1aa;">
                 This invitation was sent to <strong>{{ .Email }}</strong>. If you weren't expecting this, you can ignore it.
-              </p>`;
+              </p>`);
 
-const magicLinkBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
+const magicLinkBody = dedent(`<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
                 Your login link
               </h1>
               <p style="margin: 0 0 24px; font-size: {{STYLE_BODY_SIZE}}; line-height: 24px; color: {{STYLE_BODY_COLOR}};">
@@ -324,9 +325,9 @@ const magicLinkBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SI
               </table>
               <p style="margin: 24px 0 0; font-size: 13px; line-height: 20px; color: #a1a1aa;">
                 Or use this OTP code: <strong style="color: {{STYLE_HEADING_COLOR}}; font-family: monospace; font-size: 16px; letter-spacing: 0.1em;">{{ .Token }}</strong>
-              </p>`;
+              </p>`);
 
-const changeEmailBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
+const changeEmailBody = dedent(`<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
                 Confirm email change
               </h1>
               <p style="margin: 0 0 24px; font-size: {{STYLE_BODY_SIZE}}; line-height: 24px; color: {{STYLE_BODY_COLOR}};">
@@ -343,9 +344,9 @@ const changeEmailBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_
               </table>
               <p style="margin: 24px 0 0; font-size: 13px; line-height: 20px; color: #a1a1aa;">
                 If you didn't request this change, please secure your account immediately.
-              </p>`;
+              </p>`);
 
-const resetPasswordBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
+const resetPasswordBody = dedent(`<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
                 Reset your password
               </h1>
               <p style="margin: 0 0 24px; font-size: {{STYLE_BODY_SIZE}}; line-height: 24px; color: {{STYLE_BODY_COLOR}};">
@@ -362,9 +363,9 @@ const resetPasswordBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADIN
               </table>
               <p style="margin: 24px 0 0; font-size: 13px; line-height: 20px; color: #a1a1aa;">
                 Or use this OTP code: <strong style="color: {{STYLE_HEADING_COLOR}}; font-family: monospace; font-size: 16px; letter-spacing: 0.1em;">{{ .Token }}</strong>
-              </p>`;
+              </p>`);
 
-const reauthenticationBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
+const reauthenticationBody = dedent(`<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
                 Verify your identity
               </h1>
               <p style="margin: 0 0 24px; font-size: {{STYLE_BODY_SIZE}}; line-height: 24px; color: {{STYLE_BODY_COLOR}};">
@@ -379,10 +380,10 @@ const reauthenticationBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEA
               </table>
               <p style="margin: 24px 0 0; font-size: 13px; line-height: 20px; color: #a1a1aa;">
                 If you didn't request this code, someone may be trying to access your account. Please secure your account.
-              </p>`;
+              </p>`);
 
 // Variant: minimal confirm signup
-const confirmSignUpMinimalBody = `<h1 style="margin: 0 0 16px; font-size: 20px; font-weight: 600; color: {{STYLE_HEADING_COLOR}};">
+const confirmSignUpMinimalBody = dedent(`<h1 style="margin: 0 0 16px; font-size: 20px; font-weight: 600; color: {{STYLE_HEADING_COLOR}};">
                 Confirm your email
               </h1>
               <p style="margin: 0 0 20px; font-size: 14px; line-height: 22px; color: {{STYLE_BODY_COLOR}};">
@@ -390,10 +391,10 @@ const confirmSignUpMinimalBody = `<h1 style="margin: 0 0 16px; font-size: 20px; 
               </p>
               <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 10px 24px; font-size: 13px; font-weight: 600; color: {{STYLE_BUTTON_TEXT}}; background-color: {{STYLE_BUTTON_BG}}; text-decoration: none; border-radius: 6px;">
                 Verify Email
-              </a>`;
+              </a>`);
 
 // Variant: branded confirm signup
-const confirmSignUpBrandedBody = `<div style="text-align: center;">
+const confirmSignUpBrandedBody = dedent(`<div style="text-align: center;">
                 <div style="margin-bottom: 24px;">
                   <span style="display: inline-block; width: 48px; height: 48px; background-color: {{STYLE_BRAND_COLOR}}; border-radius: 12px; line-height: 48px; text-align: center; font-size: 24px; color: #ffffff; font-weight: 700;">Y</span>
                 </div>
@@ -415,9 +416,9 @@ const confirmSignUpBrandedBody = `<div style="text-align: center;">
                 <p style="margin: 32px 0 0; font-size: 13px; line-height: 20px; color: #a1a1aa;">
                   Your verification code: <strong style="color: {{STYLE_BRAND_COLOR}}; font-family: monospace; font-size: 15px;">{{ .Token }}</strong>
                 </p>
-              </div>`;
+              </div>`);
 
-const memberAcceptanceBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
+const memberAcceptanceBody = dedent(`<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
                 Welcome aboard, {{name}}!
               </h1>
               <p style="margin: 0 0 24px; font-size: {{STYLE_BODY_SIZE}}; line-height: 24px; color: {{STYLE_BODY_COLOR}};">
@@ -443,7 +444,7 @@ const memberAcceptanceBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEA
                     </a>
                   </td>
                 </tr>
-              </table>`;
+              </table>`);
 
 export const emailTemplates: EmailTemplate[] = [
   {

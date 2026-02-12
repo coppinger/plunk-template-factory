@@ -19,10 +19,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2 } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Mail,
+  FileText,
+  Send,
+  Bell,
+  Heart,
+  Star,
+  Zap,
+  PartyPopper,
+  Sparkles,
+  UserCheck,
+  UserPlus,
+  KeyRound,
+  ShieldCheck,
+} from "lucide-react";
+import type { ComponentType } from "react";
 import type { TemplateTypeInfo, TemplateVariable, CustomTemplateType } from "@/lib/types";
 
 const ICON_OPTIONS = [
+  "Mail",
   "FileText",
   "Send",
   "Bell",
@@ -36,6 +54,22 @@ const ICON_OPTIONS = [
   "KeyRound",
   "ShieldCheck",
 ] as const;
+
+const iconComponents: Record<string, ComponentType<{ className?: string }>> = {
+  Mail,
+  FileText,
+  Send,
+  Bell,
+  Heart,
+  Star,
+  Zap,
+  PartyPopper,
+  Sparkles,
+  UserCheck,
+  UserPlus,
+  KeyRound,
+  ShieldCheck,
+};
 
 interface VariableRow {
   name: string;
@@ -55,13 +89,13 @@ export function CreateCustomTemplateDialog({
 }: CreateCustomTemplateDialogProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [icon, setIcon] = useState("FileText");
+  const [icon, setIcon] = useState("Mail");
   const [variables, setVariables] = useState<VariableRow[]>([]);
 
   const reset = useCallback(() => {
     setName("");
     setDescription("");
-    setIcon("FileText");
+    setIcon("Mail");
     setVariables([]);
   }, []);
 
@@ -155,11 +189,17 @@ export function CreateCustomTemplateDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {ICON_OPTIONS.map((opt) => (
-                  <SelectItem key={opt} value={opt}>
-                    {opt}
-                  </SelectItem>
-                ))}
+                {ICON_OPTIONS.map((opt) => {
+                  const Icon = iconComponents[opt];
+                  return (
+                    <SelectItem key={opt} value={opt}>
+                      <span className="flex items-center gap-2">
+                        {Icon && <Icon className="h-4 w-4" />}
+                        {opt}
+                      </span>
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>
