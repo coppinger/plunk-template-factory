@@ -1,9 +1,25 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import type { TemplateType, TemplateVariant, GlobalTemplate, TemplateStyle } from "@/lib/types";
+import type {
+  TemplateType,
+  TemplateVariant,
+  GlobalTemplate,
+  TemplateStyle,
+  TemplateTypeInfo,
+  TemplateVariable,
+  EmailTemplate,
+} from "@/lib/types";
 import { DEFAULT_STYLE } from "@/lib/types";
-import { emailTemplates, defaultGlobalTemplate } from "@/lib/mock-data";
+import {
+  emailTemplates,
+  defaultGlobalTemplate,
+  templateTypes,
+  templateVariables,
+  seedCustomTemplateTypes,
+  seedCustomVariables,
+  seedCustomEmailTemplates,
+} from "@/lib/mock-data";
 import { composeEmail, applyStyleTokens } from "@/lib/utils";
 
 export function useTemplateEditor() {
@@ -17,22 +33,42 @@ export function useTemplateEditor() {
     () => ({ ...defaultGlobalTemplate })
   );
 
+  // Custom template types and variables
+  const [customTemplateTypes, setCustomTemplateTypes] = useState<TemplateTypeInfo[]>(
+    () => [...seedCustomTemplateTypes]
+  );
+  const [customVariables, setCustomVariables] = useState<TemplateVariable[]>(
+    () => [...seedCustomVariables]
+  );
+
   // Deep clone templates so we can mutate independently
+  const allInitialTemplates = [...emailTemplates, ...seedCustomEmailTemplates];
   const [templates, setTemplates] = useState(() =>
-    emailTemplates.map((t) => ({
+    allInitialTemplates.map((t) => ({
       ...t,
       variants: t.variants.map((v) => ({ ...v })),
     }))
   );
 
-  const [activeVariantIds, setActiveVariantIds] = useState<Record<TemplateType, string>>(
+  const [activeVariantIds, setActiveVariantIds] = useState<Record<string, string>>(
     () => {
-      const ids: Partial<Record<TemplateType, string>> = {};
-      for (const t of emailTemplates) {
+      const ids: Record<string, string> = {};
+      for (const t of allInitialTemplates) {
         ids[t.type] = t.variants[0]?.id ?? "default";
       }
-      return ids as Record<TemplateType, string>;
+      return ids;
     }
+  );
+
+  // Merged template types and variables
+  const allTemplateTypes = useMemo(
+    () => [...templateTypes, ...customTemplateTypes],
+    [customTemplateTypes]
+  );
+
+  const allVariables = useMemo(
+    () => [...templateVariables, ...customVariables],
+    [customVariables]
   );
 
   const currentTemplate = useMemo(
@@ -55,11 +91,11 @@ export function useTemplateEditor() {
   );
 
   const variantCounts = useMemo(() => {
-    const counts: Partial<Record<TemplateType, number>> = {};
+    const counts: Record<string, number> = {};
     for (const t of templates) {
       counts[t.type] = t.variants.length;
     }
-    return counts as Record<TemplateType, number>;
+    return counts;
   }, [templates]);
 
   const setGlobalHtml = useCallback((html: string) => {
@@ -242,6 +278,59 @@ export function useTemplateEditor() {
     setZoom(1);
   }, []);
 
+  // Custom template CRUD
+  const addCustomTemplateType = useCallback(
+    (info: TemplateTypeInfo, variables: TemplateVariable[]) => {
+      setCustomTemplateTypes((prev) => [...prev, info]);
+      setCustomVariables((prev) => [...prev, ...variables]);
+
+      const defaultBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
+                ${info.label}
+              </h1>
+              <p style="margin: 0 0 24px; font-size: {{STYLE_BODY_SIZE}}; line-height: 24px; color: {{STYLE_BODY_COLOR}};">
+                ${info.description}
+              </p>`;
+
+      const newTemplate: EmailTemplate = {
+        type: info.id,
+        subject: info.label,
+        bodyHtml: defaultBody,
+        variants: [
+          {
+            id: "default",
+            name: "Default",
+            subject: info.label,
+            bodyHtml: defaultBody,
+          },
+        ],
+      };
+
+      setTemplates((prev) => [...prev, { ...newTemplate, variants: [...newTemplate.variants] }]);
+      setActiveVariantIds((prev) => ({ ...prev, [info.id]: "default" }));
+      setSelectedType(info.id);
+      setEditingGlobal(false);
+    },
+    []
+  );
+
+  const deleteCustomTemplateType = useCallback(
+    (id: TemplateType) => {
+      setCustomTemplateTypes((prev) => prev.filter((t) => t.id !== id));
+      setCustomVariables((prev) => prev.filter((v) => !v.availableFor.includes(id)));
+      setTemplates((prev) => prev.filter((t) => t.type !== id));
+      setActiveVariantIds((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      if (selectedType === id) {
+        setSelectedType("confirm-signup");
+        setEditingGlobal(false);
+      }
+    },
+    [selectedType]
+  );
+
   return {
     selectedType,
     device,
@@ -274,5 +363,10 @@ export function useTemplateEditor() {
     zoomIn,
     zoomOut,
     zoomReset,
+    // Custom template support
+    allTemplateTypes,
+    allVariables,
+    addCustomTemplateType,
+    deleteCustomTemplateType,
   };
 }

@@ -1,6 +1,6 @@
 import type {
   TemplateTypeInfo,
-  SupabaseVariable,
+  TemplateVariable,
   EmailTemplate,
   GlobalTemplate,
 } from "./types";
@@ -19,6 +19,8 @@ export const templateTypes: TemplateTypeInfo[] = [
       "{{ .SiteURL }}",
       "{{ .Email }}",
     ],
+    category: "supabase-auth",
+    isBuiltIn: true,
   },
   {
     id: "invite-user",
@@ -32,6 +34,8 @@ export const templateTypes: TemplateTypeInfo[] = [
       "{{ .SiteURL }}",
       "{{ .Email }}",
     ],
+    category: "supabase-auth",
+    isBuiltIn: true,
   },
   {
     id: "magic-link",
@@ -45,6 +49,8 @@ export const templateTypes: TemplateTypeInfo[] = [
       "{{ .SiteURL }}",
       "{{ .Email }}",
     ],
+    category: "supabase-auth",
+    isBuiltIn: true,
   },
   {
     id: "change-email",
@@ -59,6 +65,8 @@ export const templateTypes: TemplateTypeInfo[] = [
       "{{ .Email }}",
       "{{ .NewEmail }}",
     ],
+    category: "supabase-auth",
+    isBuiltIn: true,
   },
   {
     id: "reset-password",
@@ -72,6 +80,8 @@ export const templateTypes: TemplateTypeInfo[] = [
       "{{ .SiteURL }}",
       "{{ .Email }}",
     ],
+    category: "supabase-auth",
+    isBuiltIn: true,
   },
   {
     id: "reauthentication",
@@ -85,10 +95,24 @@ export const templateTypes: TemplateTypeInfo[] = [
       "{{ .SiteURL }}",
       "{{ .Email }}",
     ],
+    category: "supabase-auth",
+    isBuiltIn: true,
   },
 ];
 
-export const supabaseVariables: SupabaseVariable[] = [
+export const seedCustomTemplateTypes: TemplateTypeInfo[] = [
+  {
+    id: "custom-member-acceptance",
+    label: "Member Acceptance",
+    description: "Sent when a new member's application has been approved",
+    icon: "PartyPopper",
+    variables: ["{{name}}", "{{discordInviteUrl}}", "{{profileSetupUrl}}"],
+    category: "custom",
+    isBuiltIn: false,
+  },
+];
+
+export const templateVariables: TemplateVariable[] = [
   {
     name: "ConfirmationURL",
     syntax: "{{ .ConfirmationURL }}",
@@ -172,6 +196,30 @@ export const supabaseVariables: SupabaseVariable[] = [
     ],
   },
 ];
+
+export const seedCustomVariables: TemplateVariable[] = [
+  {
+    name: "name",
+    syntax: "{{name}}",
+    description: "The accepted member's display name",
+    availableFor: ["custom-member-acceptance"],
+  },
+  {
+    name: "discordInviteUrl",
+    syntax: "{{discordInviteUrl}}",
+    description: "Invite link to the community Discord server",
+    availableFor: ["custom-member-acceptance"],
+  },
+  {
+    name: "profileSetupUrl",
+    syntax: "{{profileSetupUrl}}",
+    description: "URL where the member can set up their profile",
+    availableFor: ["custom-member-acceptance"],
+  },
+];
+
+/** @deprecated Use templateVariables instead */
+export const supabaseVariables = templateVariables;
 
 export const defaultGlobalTemplate: GlobalTemplate = {
   html: `<!DOCTYPE html>
@@ -369,6 +417,34 @@ const confirmSignUpBrandedBody = `<div style="text-align: center;">
                 </p>
               </div>`;
 
+const memberAcceptanceBody = `<h1 style="margin: 0 0 8px; font-size: {{STYLE_HEADING_SIZE}}; font-weight: 700; color: {{STYLE_HEADING_COLOR}}; letter-spacing: -0.02em;">
+                Welcome aboard, {{name}}!
+              </h1>
+              <p style="margin: 0 0 24px; font-size: {{STYLE_BODY_SIZE}}; line-height: 24px; color: {{STYLE_BODY_COLOR}};">
+                Great news — your application to join <strong style="color: {{STYLE_HEADING_COLOR}};">{{STYLE_BRAND_NAME}}</strong> has been approved! We're excited to have you as part of the community.
+              </p>
+              <table role="presentation" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="border-radius: {{STYLE_BUTTON_RADIUS}}; background-color: {{STYLE_BUTTON_BG}};">
+                    <a href="{{profileSetupUrl}}" style="display: inline-block; padding: 12px 32px; font-size: 14px; font-weight: 600; color: {{STYLE_BUTTON_TEXT}}; text-decoration: none; border-radius: {{STYLE_BUTTON_RADIUS}};">
+                      Set Up Your Profile
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin: 24px 0 0; font-size: {{STYLE_BODY_SIZE}}; line-height: 24px; color: {{STYLE_BODY_COLOR}};">
+                Join our Discord community to connect with other members:
+              </p>
+              <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top: 12px;">
+                <tr>
+                  <td style="border-radius: {{STYLE_BUTTON_RADIUS}}; border: 1px solid {{STYLE_BRAND_COLOR}};">
+                    <a href="{{discordInviteUrl}}" style="display: inline-block; padding: 10px 24px; font-size: 14px; font-weight: 600; color: {{STYLE_BRAND_COLOR}}; text-decoration: none; border-radius: {{STYLE_BUTTON_RADIUS}};">
+                      Join Discord
+                    </a>
+                  </td>
+                </tr>
+              </table>`;
+
 export const emailTemplates: EmailTemplate[] = [
   {
     type: "confirm-signup",
@@ -457,6 +533,22 @@ export const emailTemplates: EmailTemplate[] = [
         name: "Default",
         subject: "Your verification code",
         bodyHtml: reauthenticationBody,
+      },
+    ],
+  },
+];
+
+export const seedCustomEmailTemplates: EmailTemplate[] = [
+  {
+    type: "custom-member-acceptance",
+    subject: "Welcome to {{STYLE_BRAND_NAME}} — You're In!",
+    bodyHtml: memberAcceptanceBody,
+    variants: [
+      {
+        id: "default",
+        name: "Default",
+        subject: "Welcome to {{STYLE_BRAND_NAME}} — You're In!",
+        bodyHtml: memberAcceptanceBody,
       },
     ],
   },

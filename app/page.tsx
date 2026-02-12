@@ -5,10 +5,11 @@ import { AppHeader } from "@/components/layout/app-header";
 import { TemplateSidebar } from "@/components/layout/template-sidebar";
 import { PreviewCanvas } from "@/components/layout/preview-canvas";
 import { EditorPanel } from "@/components/layout/editor-panel";
+import { CreateCustomTemplateDialog } from "@/components/layout/create-custom-template-dialog";
 import { useTemplateEditor } from "@/hooks/use-template-editor";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { applyStyleTokens } from "@/lib/utils";
-import { templateTypes } from "@/lib/mock-data";
+import { SUPABASE_TEMPLATE_TYPES } from "@/lib/types";
 import type { TemplateType } from "@/lib/types";
 import type { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import {
@@ -22,6 +23,7 @@ export default function Home() {
   const editor = useTemplateEditor();
   const editorRef = useRef<ReactCodeMirrorRef>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   const handleCopy = useCallback(() => {
     editor.copyHtml();
@@ -50,6 +52,13 @@ export default function Home() {
     setSidebarCollapsed((prev) => !prev);
   }, []);
 
+  const filteredVariables = useMemo(() => {
+    if (editor.editingGlobal) return editor.allVariables;
+    return editor.allVariables.filter((v) =>
+      v.availableFor.includes(editor.selectedType)
+    );
+  }, [editor.editingGlobal, editor.allVariables, editor.selectedType]);
+
   const shortcuts = useMemo(
     () => ({
       "mod+shift+c": handleCopy,
@@ -58,12 +67,12 @@ export default function Home() {
       "mod+shift+d": () => {
         editor.setDevice(editor.device === "desktop" ? "mobile" : "desktop");
       },
-      "mod+1": () => templateTypes[0] && editor.changeType(templateTypes[0].id as TemplateType),
-      "mod+2": () => templateTypes[1] && editor.changeType(templateTypes[1].id as TemplateType),
-      "mod+3": () => templateTypes[2] && editor.changeType(templateTypes[2].id as TemplateType),
-      "mod+4": () => templateTypes[3] && editor.changeType(templateTypes[3].id as TemplateType),
-      "mod+5": () => templateTypes[4] && editor.changeType(templateTypes[4].id as TemplateType),
-      "mod+6": () => templateTypes[5] && editor.changeType(templateTypes[5].id as TemplateType),
+      "mod+1": () => SUPABASE_TEMPLATE_TYPES[0] && editor.changeType(SUPABASE_TEMPLATE_TYPES[0] as TemplateType),
+      "mod+2": () => SUPABASE_TEMPLATE_TYPES[1] && editor.changeType(SUPABASE_TEMPLATE_TYPES[1] as TemplateType),
+      "mod+3": () => SUPABASE_TEMPLATE_TYPES[2] && editor.changeType(SUPABASE_TEMPLATE_TYPES[2] as TemplateType),
+      "mod+4": () => SUPABASE_TEMPLATE_TYPES[3] && editor.changeType(SUPABASE_TEMPLATE_TYPES[3] as TemplateType),
+      "mod+5": () => SUPABASE_TEMPLATE_TYPES[4] && editor.changeType(SUPABASE_TEMPLATE_TYPES[4] as TemplateType),
+      "mod+6": () => SUPABASE_TEMPLATE_TYPES[5] && editor.changeType(SUPABASE_TEMPLATE_TYPES[5] as TemplateType),
     }),
     [handleCopy, handleExport, toggleSidebar, editor]
   );
@@ -79,6 +88,7 @@ export default function Home() {
         onExport={handleExport}
         onCopy={handleCopy}
         activeVariantName={editor.activeVariant.name}
+        allTemplateTypes={editor.allTemplateTypes}
       />
 
       <div className="flex flex-1 overflow-hidden">
@@ -91,6 +101,13 @@ export default function Home() {
             variantCounts={editor.variantCounts}
             collapsed={sidebarCollapsed}
             onToggleCollapse={toggleSidebar}
+            allTemplateTypes={editor.allTemplateTypes}
+            allVariables={editor.allVariables}
+            onAddCustomTemplate={() => setShowCreateDialog(true)}
+            onDeleteCustomTemplate={(id) => {
+              editor.deleteCustomTemplateType(id);
+              toast.success("Template deleted");
+            }}
           />
         </div>
         <ResizablePanelGroup orientation="horizontal" className="flex-1">
@@ -131,6 +148,7 @@ export default function Home() {
               onVariantDuplicate={handleVariantDuplicate}
               onVariantDelete={editor.deleteVariant}
               onVariantRename={editor.renameVariant}
+              filteredVariables={filteredVariables}
               templateStyle={editor.templateStyle}
               onStyleChange={editor.updateStyle}
               editorRef={editorRef}
@@ -138,6 +156,15 @@ export default function Home() {
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
+
+      <CreateCustomTemplateDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onSubmit={(info, variables) => {
+          editor.addCustomTemplateType(info, variables);
+          toast.success(`Created "${info.label}" template`);
+        }}
+      />
     </div>
   );
 }

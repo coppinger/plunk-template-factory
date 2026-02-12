@@ -14,8 +14,7 @@ import {
 import { CodeEditor } from "@/components/editor/code-editor";
 import { EditorToolbar } from "@/components/editor/editor-toolbar";
 import { DeleteVariantDialog } from "@/components/layout/delete-variant-dialog";
-import { supabaseVariables } from "@/lib/mock-data";
-import type { TemplateType, TemplateVariant, SupabaseVariable } from "@/lib/types";
+import type { TemplateType, TemplateVariant, TemplateVariable } from "@/lib/types";
 import { BODY_PLACEHOLDER } from "@/lib/types";
 import { StyleEditorTab } from "@/components/editor/style-editor-tab";
 import type { TemplateStyle } from "@/lib/types";
@@ -49,6 +48,7 @@ interface EditorPanelProps {
   onVariantDuplicate: (id: string) => void;
   onVariantDelete: (id: string) => void;
   onVariantRename: (id: string, name: string) => void;
+  filteredVariables: TemplateVariable[];
   templateStyle?: TemplateStyle;
   onStyleChange?: (updates: Partial<TemplateStyle>) => void;
   editorRef: RefObject<ReactCodeMirrorRef | null>;
@@ -92,6 +92,7 @@ export function EditorPanel({
   onVariantDuplicate,
   onVariantDelete,
   onVariantRename,
+  filteredVariables,
   templateStyle,
   onStyleChange,
   editorRef,
@@ -102,9 +103,7 @@ export function EditorPanel({
   const [editNameValue, setEditNameValue] = useState("");
   const renameInputRef = useRef<HTMLInputElement>(null);
 
-  const filteredVars = editingGlobal
-    ? supabaseVariables
-    : supabaseVariables.filter((v) => v.availableFor.includes(selectedType));
+  const filteredVars = filteredVariables;
 
   function copyVariable(syntax: string) {
     navigator.clipboard.writeText(syntax);
@@ -139,7 +138,7 @@ export function EditorPanel({
   const tabTriggerClass =
     "h-8 rounded-md px-3 text-[13px] font-medium text-muted-foreground data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:shadow-none transition-colors duration-150";
 
-  const variablesList = (vars: SupabaseVariable[], showInsert: boolean) => (
+  const variablesList = (vars: TemplateVariable[], showInsert: boolean) => (
     <ScrollArea className="h-full">
       <div className="p-4 space-y-1">
         {vars.map((v) => (

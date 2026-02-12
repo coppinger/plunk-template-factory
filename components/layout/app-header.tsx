@@ -3,7 +3,9 @@
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -13,8 +15,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { templateTypes } from "@/lib/mock-data";
-import type { TemplateType } from "@/lib/types";
+import type { TemplateType, TemplateTypeInfo } from "@/lib/types";
 import { Copy, Download, Mail, LayoutTemplate, ChevronRight } from "lucide-react";
 
 interface AppHeaderProps {
@@ -24,6 +25,7 @@ interface AppHeaderProps {
   onExport: () => void;
   onCopy: () => void;
   activeVariantName?: string;
+  allTemplateTypes: TemplateTypeInfo[];
 }
 
 export function AppHeader({
@@ -33,7 +35,11 @@ export function AppHeader({
   onExport,
   onCopy,
   activeVariantName,
+  allTemplateTypes,
 }: AppHeaderProps) {
+  const supabaseTypes = allTemplateTypes.filter((t) => t.category === "supabase-auth");
+  const customTypes = allTemplateTypes.filter((t) => t.category === "custom");
+
   return (
     <header className="flex h-14 shrink-0 items-center border-b border-border/40 bg-[#111114] px-4 shadow-[0_1px_0_rgba(0,0,0,0.3)]">
       <div className="flex items-center gap-2.5">
@@ -61,11 +67,24 @@ export function AppHeader({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {templateTypes.map((t) => (
-                <SelectItem key={t.id} value={t.id} className="text-[13px]">
-                  {t.label}
-                </SelectItem>
-              ))}
+              <SelectGroup>
+                <SelectLabel className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">Supabase Auth</SelectLabel>
+                {supabaseTypes.map((t) => (
+                  <SelectItem key={t.id} value={t.id} className="text-[13px]">
+                    {t.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+              {customTypes.length > 0 && (
+                <SelectGroup>
+                  <SelectLabel className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">Custom</SelectLabel>
+                  {customTypes.map((t) => (
+                    <SelectItem key={t.id} value={t.id} className="text-[13px]">
+                      {t.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              )}
             </SelectContent>
           </Select>
           {activeVariantName && activeVariantName !== "Default" && (

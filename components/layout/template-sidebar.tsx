@@ -8,8 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { templateTypes, supabaseVariables } from "@/lib/mock-data";
-import type { TemplateType } from "@/lib/types";
+import type { TemplateType, TemplateTypeInfo, TemplateVariable } from "@/lib/types";
 import {
   UserCheck,
   UserPlus,
@@ -22,6 +21,15 @@ import {
   Check,
   ChevronsLeft,
   ChevronsRight,
+  PartyPopper,
+  FileText,
+  Send,
+  Bell,
+  Heart,
+  Star,
+  Zap,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import { useState, type ComponentType } from "react";
 import { toast } from "sonner";
@@ -33,6 +41,13 @@ const iconMap: Record<string, ComponentType<{ className?: string }>> = {
   MailWarning,
   KeyRound,
   ShieldCheck,
+  PartyPopper,
+  FileText,
+  Send,
+  Bell,
+  Heart,
+  Star,
+  Zap,
 };
 
 interface TemplateSidebarProps {
@@ -40,9 +55,13 @@ interface TemplateSidebarProps {
   editingGlobal: boolean;
   onTypeChange: (type: TemplateType) => void;
   onEditGlobal: () => void;
-  variantCounts: Record<TemplateType, number>;
+  variantCounts: Record<string, number>;
   collapsed: boolean;
   onToggleCollapse: () => void;
+  allTemplateTypes: TemplateTypeInfo[];
+  allVariables: TemplateVariable[];
+  onAddCustomTemplate: () => void;
+  onDeleteCustomTemplate: (id: TemplateType) => void;
 }
 
 export function TemplateSidebar({
@@ -53,12 +72,19 @@ export function TemplateSidebar({
   variantCounts,
   collapsed,
   onToggleCollapse,
+  allTemplateTypes,
+  allVariables,
+  onAddCustomTemplate,
+  onDeleteCustomTemplate,
 }: TemplateSidebarProps) {
   const [copiedVar, setCopiedVar] = useState<string | null>(null);
 
+  const supabaseTypes = allTemplateTypes.filter((t) => t.category === "supabase-auth");
+  const customTypes = allTemplateTypes.filter((t) => t.category === "custom");
+
   const filteredVars = editingGlobal
-    ? supabaseVariables
-    : supabaseVariables.filter((v) => v.availableFor.includes(selectedType));
+    ? allVariables
+    : allVariables.filter((v) => v.availableFor.includes(selectedType));
 
   function copyVariable(syntax: string) {
     navigator.clipboard.writeText(syntax);
@@ -101,7 +127,7 @@ export function TemplateSidebar({
 
             <div className="my-1 w-5 h-px bg-border/20" />
 
-            {templateTypes.map((t) => {
+            {supabaseTypes.map((t) => {
               const Icon = iconMap[t.icon];
               const isActive = !editingGlobal && selectedType === t.id;
               return (
@@ -120,11 +146,54 @@ export function TemplateSidebar({
                   </TooltipTrigger>
                   <TooltipContent side="right">
                     {t.label}
-                    {variantCounts[t.id] > 1 && ` (${variantCounts[t.id]})`}
+                    {(variantCounts[t.id] ?? 0) > 1 && ` (${variantCounts[t.id]})`}
                   </TooltipContent>
                 </Tooltip>
               );
             })}
+
+            {customTypes.length > 0 && (
+              <>
+                <div className="my-1 w-5 h-px bg-border/20" />
+                {customTypes.map((t) => {
+                  const Icon = iconMap[t.icon];
+                  const isActive = !editingGlobal && selectedType === t.id;
+                  return (
+                    <Tooltip key={t.id}>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => onTypeChange(t.id)}
+                          className={`flex items-center justify-center h-8 w-8 rounded-lg transition-all duration-150 ${
+                            isActive
+                              ? "bg-primary/10 text-primary border-l-[3px] border-primary"
+                              : "text-muted-foreground hover:bg-accent hover:text-foreground border-l-[3px] border-transparent"
+                          }`}
+                        >
+                          {Icon && <Icon className="h-3.5 w-3.5" />}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        {t.label}
+                        {(variantCounts[t.id] ?? 0) > 1 && ` (${variantCounts[t.id]})`}
+                      </TooltipContent>
+                    </Tooltip>
+                  );
+                })}
+              </>
+            )}
+
+            <div className="my-1 w-5 h-px bg-border/20" />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={onAddCustomTemplate}
+                  className="flex items-center justify-center h-8 w-8 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-150"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">New Template</TooltipContent>
+            </Tooltip>
           </div>
         </ScrollArea>
       </div>
@@ -163,7 +232,11 @@ export function TemplateSidebar({
 
           <div className="my-2 mx-3 h-px bg-border/20" />
 
-          {templateTypes.map((t) => {
+          <p className="px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/60">
+            Supabase Auth
+          </p>
+
+          {supabaseTypes.map((t) => {
             const Icon = iconMap[t.icon];
             const isActive = !editingGlobal && selectedType === t.id;
             return (
@@ -178,7 +251,7 @@ export function TemplateSidebar({
               >
                 {Icon && <Icon className="h-3.5 w-3.5 shrink-0" />}
                 <span className="flex-1 truncate">{t.label}</span>
-                {variantCounts[t.id] > 1 && (
+                {(variantCounts[t.id] ?? 0) > 1 && (
                   <Badge
                     variant="secondary"
                     className="h-[18px] min-w-[18px] justify-center px-1.5 text-xs font-medium bg-accent border border-border/30"
@@ -189,6 +262,72 @@ export function TemplateSidebar({
               </button>
             );
           })}
+
+          <div className="my-2 mx-3 h-px bg-border/20" />
+
+          <p className="px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/60">
+            Custom
+          </p>
+
+          {customTypes.map((t) => {
+            const Icon = iconMap[t.icon];
+            const isActive = !editingGlobal && selectedType === t.id;
+            return (
+              <div key={t.id} className="group relative">
+                <button
+                  onClick={() => onTypeChange(t.id)}
+                  className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-all duration-150 ${
+                    isActive
+                      ? "bg-primary/10 text-primary font-medium border-l-[3px] border-primary"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground border-l-[3px] border-transparent"
+                  }`}
+                >
+                  {Icon && <Icon className="h-3.5 w-3.5 shrink-0" />}
+                  <span className="flex-1 truncate">{t.label}</span>
+                  {(variantCounts[t.id] ?? 0) > 1 && (
+                    <Badge
+                      variant="secondary"
+                      className="h-[18px] min-w-[18px] justify-center px-1.5 text-xs font-medium bg-accent border border-border/30"
+                    >
+                      {variantCounts[t.id]}
+                    </Badge>
+                  )}
+                </button>
+                {!t.isBuiltIn && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteCustomTemplate(t.id);
+                        }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center rounded-md opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-all duration-150"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Delete template</TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+            );
+          })}
+
+          {customTypes.length === 0 && (
+            <p className="px-3 py-2 text-[13px] text-muted-foreground/40 italic">
+              No custom templates yet
+            </p>
+          )}
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full mt-1 h-8 text-[13px] gap-1.5 text-muted-foreground/60 hover:text-foreground justify-start px-3"
+            onClick={onAddCustomTemplate}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            New Template
+          </Button>
         </div>
 
         {!editingGlobal && (
@@ -200,7 +339,7 @@ export function TemplateSidebar({
                 Variables
               </p>
               <p className="mt-1 text-[13px] text-muted-foreground/50">
-                Available for {templateTypes.find((t) => t.id === selectedType)?.label}
+                Available for {allTemplateTypes.find((t) => t.id === selectedType)?.label}
               </p>
             </div>
 

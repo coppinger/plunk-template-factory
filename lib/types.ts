@@ -1,10 +1,29 @@
-export type TemplateType =
+export type SupabaseTemplateType =
   | "confirm-signup"
   | "invite-user"
   | "magic-link"
   | "change-email"
   | "reset-password"
   | "reauthentication";
+
+export type CustomTemplateType = `custom-${string}`;
+
+export type TemplateType = SupabaseTemplateType | CustomTemplateType;
+
+export type TemplateCategory = "supabase-auth" | "custom";
+
+export const SUPABASE_TEMPLATE_TYPES: SupabaseTemplateType[] = [
+  "confirm-signup",
+  "invite-user",
+  "magic-link",
+  "change-email",
+  "reset-password",
+  "reauthentication",
+];
+
+export function isCustomTemplate(id: string): id is CustomTemplateType {
+  return id.startsWith("custom-");
+}
 
 export const BODY_PLACEHOLDER = "<!-- BODY_CONTENT -->";
 
@@ -18,14 +37,19 @@ export interface TemplateTypeInfo {
   description: string;
   icon: string;
   variables: string[];
+  category: TemplateCategory;
+  isBuiltIn: boolean;
 }
 
-export interface SupabaseVariable {
+export interface TemplateVariable {
   name: string;
   syntax: string;
   description: string;
   availableFor: TemplateType[];
 }
+
+/** @deprecated Use TemplateVariable instead */
+export type SupabaseVariable = TemplateVariable;
 
 export interface TemplateVariant {
   id: string;

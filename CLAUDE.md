@@ -1,6 +1,6 @@
 # Plunk Template Factory
 
-Visual editor for Supabase Auth email templates. Single-page Next.js app with a three-panel layout: template sidebar, live preview, and code editor.
+Visual editor for Supabase Auth email templates. Single-page Next.js app with a fixed sidebar + two-panel resizable layout: template sidebar, live preview, and code editor.
 
 ## Commands
 
@@ -21,15 +21,15 @@ Visual editor for Supabase Auth email templates. Single-page Next.js app with a 
 ```
 app/
   layout.tsx          # Root layout with DM Sans/Mono fonts, TooltipProvider wrapper
-  page.tsx            # Main page - composes three-panel layout, wires useTemplateEditor
+  page.tsx            # Main page - fixed sidebar + resizable preview/editor, wires useTemplateEditor
   globals.css         # Tailwind + ShadCN CSS variables (neutral base color)
 
 components/
   layout/
     app-header.tsx        # Top bar: logo, template type selector, copy/export buttons
-    template-sidebar.tsx  # Left panel (280px): template type list + variable quick-copy
-    preview-canvas.tsx    # Center panel: iframe preview with desktop/mobile toggle
-    editor-panel.tsx      # Right panel (420px): tabbed Edit/Variables/Variants panes
+    template-sidebar.tsx  # Fixed left sidebar (320px, collapsible to 48px): template type list + variable quick-copy
+    preview-canvas.tsx    # Center resizable panel (40% default): iframe preview with desktop/mobile toggle
+    editor-panel.tsx      # Right resizable panel (60% default): tabbed Edit/Variables/Variants panes
   editor/
     code-editor.tsx       # CodeMirror wrapper for HTML editing
   ui/                     # ShadCN components (badge, button, card, dialog, etc.)

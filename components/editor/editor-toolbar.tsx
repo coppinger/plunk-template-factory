@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Wand2, Code2, Variable, Loader2 } from "lucide-react";
 import { useState } from "react";
-import type { SupabaseVariable } from "@/lib/types";
+import type { TemplateVariable } from "@/lib/types";
 
 const wrapTags = [
   { label: "<a>", tag: "a" },
@@ -26,7 +26,7 @@ const wrapTags = [
 ];
 
 interface EditorToolbarProps {
-  variables: SupabaseVariable[];
+  variables: TemplateVariable[];
   onFormat: () => Promise<void>;
   onWrap: (tag: string) => void;
   onInsertVariable: (syntax: string) => void;
