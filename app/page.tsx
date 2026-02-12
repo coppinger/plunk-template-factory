@@ -8,6 +8,7 @@ import { EditorPanel } from "@/components/layout/editor-panel";
 import { CreateCustomTemplateDialog } from "@/components/layout/create-custom-template-dialog";
 import { AuthDialog } from "@/components/layout/auth-dialog";
 import { useTemplateEditor } from "@/hooks/use-template-editor";
+import { useProjects } from "@/hooks/use-projects";
 import { useAuth } from "@/hooks/use-auth";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { applyStyleTokens } from "@/lib/utils";
@@ -24,11 +25,19 @@ import { Loader2 } from "lucide-react";
 
 export default function Home() {
   const auth = useAuth();
-  const editor = useTemplateEditor({
+  const projectManager = useProjects({
     isAuthenticated: auth.isAuthenticated,
     user: auth.user,
     loading: auth.loading,
   });
+  const editor = useTemplateEditor(
+    {
+      isAuthenticated: auth.isAuthenticated,
+      user: auth.user,
+      loading: auth.loading,
+    },
+    projectManager.activeProjectId
+  );
   const editorRef = useRef<ReactCodeMirrorRef>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -73,6 +82,58 @@ export default function Home() {
     [editor]
   );
 
+  const handleProjectCreate = useCallback(
+    async (name: string) => {
+      const id = await projectManager.createProject(name);
+      if (id) {
+        toast.success(`Project "${name}" created`);
+      } else {
+        toast.error("Failed to create project");
+      }
+      return id;
+    },
+    [projectManager]
+  );
+
+  const handleProjectRename = useCallback(
+    async (id: string, name: string) => {
+      const ok = await projectManager.renameProject(id, name);
+      if (ok) {
+        toast.success("Project renamed");
+      } else {
+        toast.error("Failed to rename project");
+      }
+      return ok;
+    },
+    [projectManager]
+  );
+
+  const handleProjectDuplicate = useCallback(
+    async (id: string, name: string) => {
+      const newId = await projectManager.duplicateProject(id, name);
+      if (newId) {
+        toast.success(`Project duplicated as "${name}"`);
+      } else {
+        toast.error("Failed to duplicate project");
+      }
+      return newId;
+    },
+    [projectManager]
+  );
+
+  const handleProjectDelete = useCallback(
+    async (id: string) => {
+      const ok = await projectManager.deleteProject(id);
+      if (ok) {
+        toast.success("Project deleted");
+      } else {
+        toast.error("Failed to delete project");
+      }
+      return ok;
+    },
+    [projectManager]
+  );
+
   const toggleSidebar = useCallback(() => {
     setSidebarCollapsed((prev) => !prev);
   }, []);
@@ -105,7 +166,7 @@ export default function Home() {
   useKeyboardShortcuts(shortcuts);
 
   // Loading state
-  if (auth.loading) {
+  if (auth.loading || (auth.isAuthenticated && projectManager.isLoading)) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -118,6 +179,23 @@ export default function Home() {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <AuthDialog onSignIn={auth.signIn} onSignUp={auth.signUp} />
+      </div>
+    );
+  }
+
+  // No projects yet — show a prompt to create the first one
+  if (projectManager.projects.length === 0) {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center gap-4 bg-background">
+        <p className="text-sm text-muted-foreground">
+          Create your first project to get started
+        </p>
+        <button
+          className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          onClick={() => handleProjectCreate("My Project")}
+        >
+          Create Project
+        </button>
       </div>
     );
   }
@@ -136,6 +214,13 @@ export default function Home() {
         onImportJson={handleImportJson}
         user={auth.user}
         onSignOut={auth.signOut}
+        projects={projectManager.projects}
+        activeProjectId={projectManager.activeProjectId}
+        onProjectSwitch={projectManager.switchProject}
+        onProjectCreate={handleProjectCreate}
+        onProjectRename={handleProjectRename}
+        onProjectDuplicate={handleProjectDuplicate}
+        onProjectDelete={handleProjectDelete}
       />
 
       <div className="flex flex-1 overflow-hidden">

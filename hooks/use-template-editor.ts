@@ -31,8 +31,26 @@ interface AuthState {
   loading: boolean;
 }
 
-export function useTemplateEditor(authState: AuthState) {
-  const [isLoaded, setIsLoaded] = useState(false);
+function buildInitialTemplates() {
+  const all = [...emailTemplates, ...seedCustomEmailTemplates];
+  return all.map((t) => ({
+    ...t,
+    variants: t.variants.map((v) => ({ ...v })),
+  }));
+}
+
+function buildInitialVariantIds() {
+  const all = [...emailTemplates, ...seedCustomEmailTemplates];
+  const ids: Record<string, string> = {};
+  for (const t of all) {
+    ids[t.type] = t.variants[0]?.id ?? "default";
+  }
+  return ids;
+}
+
+export function useTemplateEditor(authState: AuthState, projectId: string | null) {
+  const [loadedProjectId, setLoadedProjectId] = useState<string | null>(null);
+  const isLoaded = loadedProjectId === projectId && projectId !== null;
   const [selectedType, setSelectedType] = useState<TemplateType>("confirm-signup");
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [editingGlobal, setEditingGlobal] = useState(false);
@@ -52,22 +70,10 @@ export function useTemplateEditor(authState: AuthState) {
   );
 
   // Deep clone templates so we can mutate independently
-  const allInitialTemplates = [...emailTemplates, ...seedCustomEmailTemplates];
-  const [templates, setTemplates] = useState(() =>
-    allInitialTemplates.map((t) => ({
-      ...t,
-      variants: t.variants.map((v) => ({ ...v })),
-    }))
-  );
+  const [templates, setTemplates] = useState(() => buildInitialTemplates());
 
   const [activeVariantIds, setActiveVariantIds] = useState<Record<string, string>>(
-    () => {
-      const ids: Record<string, string> = {};
-      for (const t of allInitialTemplates) {
-        ids[t.type] = t.variants[0]?.id ?? "default";
-      }
-      return ids;
-    }
+    () => buildInitialVariantIds()
   );
 
   // Shared helpers for load/import and save/export
@@ -78,6 +84,17 @@ export function useTemplateEditor(authState: AuthState) {
     setCustomTemplateTypes(d.customTemplateTypes);
     setCustomVariables(d.customVariables);
     setActiveVariantIds(d.activeVariantIds);
+  }, []);
+
+  const resetToDefaults = useCallback(() => {
+    setTemplates(buildInitialTemplates());
+    setGlobalTemplate({ ...defaultGlobalTemplate });
+    setTemplateStyle({ ...DEFAULT_STYLE });
+    setCustomTemplateTypes([...seedCustomTemplateTypes]);
+    setCustomVariables([...seedCustomVariables]);
+    setActiveVariantIds(buildInitialVariantIds());
+    setSelectedType("confirm-signup");
+    setEditingGlobal(false);
   }, []);
 
   const getPersistedData = useCallback((): PersistedData => {
@@ -93,40 +110,64 @@ export function useTemplateEditor(authState: AuthState) {
     };
   }, [templates, globalTemplate, templateStyle, customTemplateTypes, customVariables, activeVariantIds]);
 
-  // Load persisted data on mount (wait for auth)
+  // Load persisted data when projectId changes
   useEffect(() => {
-    if (authState.loading) return;
-    if (!authState.isAuthenticated) return;
+    if (authState.loading || !authState.isAuthenticated) return;
+    if (!projectId) return;
 
-    fetch("/api/templates")
-      .then((res) => res.json())
+    // Capture the projectId at fetch time to avoid stale closures
+    const fetchProjectId = projectId;
+    let cancelled = false;
+
+    fetch(`/api/templates?projectId=${fetchProjectId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((result) => {
+        if (cancelled) return;
         if (result.saved) {
           applyPersistedData(result.data as PersistedData);
+        } else {
+          resetToDefaults();
         }
+        setLoadedProjectId(fetchProjectId);
       })
-      .catch((err) => console.error("Failed to load templates:", err))
-      .finally(() => setIsLoaded(true));
-  }, [authState.loading, authState.isAuthenticated, applyPersistedData]);
+      .catch((err) => {
+        console.error("Failed to load templates:", err);
+        if (!cancelled) {
+          resetToDefaults();
+          setLoadedProjectId(fetchProjectId);
+        }
+      });
 
-  // Debounced auto-save
-  const isFirstSave = useRef(true);
+    return () => {
+      cancelled = true;
+    };
+  }, [authState.loading, authState.isAuthenticated, projectId, applyPersistedData, resetToDefaults]);
+
+  // Debounced auto-save — skip saving immediately after loading
+  const skipNextSave = useRef(false);
   useEffect(() => {
-    if (!isLoaded || !authState.isAuthenticated) return;
-    // Skip the first render after load to avoid saving the data we just loaded
-    if (isFirstSave.current) {
-      isFirstSave.current = false;
+    // Mark to skip the first auto-save after loading a project
+    skipNextSave.current = true;
+  }, [loadedProjectId]);
+
+  useEffect(() => {
+    if (!isLoaded || !authState.isAuthenticated || !projectId) return;
+    if (skipNextSave.current) {
+      skipNextSave.current = false;
       return;
     }
     const timer = setTimeout(() => {
-      fetch("/api/templates", {
+      fetch(`/api/templates?projectId=${projectId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(getPersistedData()),
       }).catch((err) => console.error("Failed to save templates:", err));
     }, 1000);
     return () => clearTimeout(timer);
-  }, [isLoaded, authState.isAuthenticated, templates, globalTemplate, templateStyle, customTemplateTypes, customVariables, activeVariantIds, getPersistedData]);
+  }, [isLoaded, authState.isAuthenticated, projectId, getPersistedData]);
 
   // JSON export/import
   const exportJson = useCallback(() => {
