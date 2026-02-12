@@ -11,7 +11,6 @@ import { applyStyleTokens } from "@/lib/utils";
 import { templateTypes } from "@/lib/mock-data";
 import type { TemplateType } from "@/lib/types";
 import type { ReactCodeMirrorRef } from "@uiw/react-codemirror";
-import type { PanelImperativeHandle } from "react-resizable-panels";
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -22,7 +21,6 @@ import { toast } from "sonner";
 export default function Home() {
   const editor = useTemplateEditor();
   const editorRef = useRef<ReactCodeMirrorRef>(null);
-  const sidebarPanelRef = useRef<PanelImperativeHandle>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const handleCopy = useCallback(() => {
@@ -49,17 +47,7 @@ export default function Home() {
   );
 
   const toggleSidebar = useCallback(() => {
-    const panel = sidebarPanelRef.current;
-    if (!panel) return;
-    if (sidebarCollapsed) {
-      panel.expand();
-    } else {
-      panel.collapse();
-    }
-  }, [sidebarCollapsed]);
-
-  const handleSidebarResize = useCallback((size: { asPercentage: number }) => {
-    setSidebarCollapsed(size.asPercentage <= 5);
+    setSidebarCollapsed((prev) => !prev);
   }, []);
 
   const shortcuts = useMemo(
@@ -93,16 +81,8 @@ export default function Home() {
         activeVariantName={editor.activeVariant.name}
       />
 
-      <ResizablePanelGroup orientation="horizontal" className="flex-1">
-        <ResizablePanel
-          defaultSize={15}
-          minSize={4}
-          maxSize={25}
-          collapsible
-          collapsedSize={4}
-          panelRef={sidebarPanelRef}
-          onResize={(size) => handleSidebarResize({ asPercentage: size.asPercentage })}
-        >
+      <div className="flex flex-1 overflow-hidden">
+        <div className={`shrink-0 transition-[width] duration-200 ${sidebarCollapsed ? "w-12" : "w-80 max-w-80"}`}>
           <TemplateSidebar
             selectedType={editor.selectedType}
             editingGlobal={editor.editingGlobal}
@@ -112,51 +92,52 @@ export default function Home() {
             collapsed={sidebarCollapsed}
             onToggleCollapse={toggleSidebar}
           />
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel defaultSize={55} minSize={30}>
-          <PreviewCanvas
-            html={
-              editor.editingGlobal
-                ? applyStyleTokens(editor.globalTemplate.html, editor.templateStyle)
-                : editor.composedHtml
-            }
-            device={editor.device}
-            onDeviceChange={editor.setDevice}
-            zoom={editor.zoom}
-            onZoomIn={editor.zoomIn}
-            onZoomOut={editor.zoomOut}
-            onZoomReset={editor.zoomReset}
-          />
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
-          <EditorPanel
-            selectedType={editor.selectedType}
-            editingGlobal={editor.editingGlobal}
-            subject={editor.currentTemplate.subject}
-            html={
-              editor.editingGlobal
-                ? editor.globalTemplate.html
-                : editor.currentTemplate.bodyHtml
-            }
-            onSubjectChange={editor.setSubject}
-            onHtmlChange={
-              editor.editingGlobal ? editor.setGlobalHtml : editor.setBodyHtml
-            }
-            variants={editor.currentTemplate.variants}
-            activeVariantId={editor.activeVariantId}
-            onVariantSelect={editor.selectVariant}
-            onVariantCreate={handleVariantCreate}
-            onVariantDuplicate={handleVariantDuplicate}
-            onVariantDelete={editor.deleteVariant}
-            onVariantRename={editor.renameVariant}
-            templateStyle={editor.templateStyle}
-            onStyleChange={editor.updateStyle}
-            editorRef={editorRef}
-          />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+        </div>
+        <ResizablePanelGroup orientation="horizontal" className="flex-1">
+          <ResizablePanel defaultSize="40" minSize="20">
+            <PreviewCanvas
+              html={
+                editor.editingGlobal
+                  ? applyStyleTokens(editor.globalTemplate.html, editor.templateStyle)
+                  : editor.composedHtml
+              }
+              device={editor.device}
+              onDeviceChange={editor.setDevice}
+              zoom={editor.zoom}
+              onZoomIn={editor.zoomIn}
+              onZoomOut={editor.zoomOut}
+              onZoomReset={editor.zoomReset}
+            />
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel defaultSize="60" minSize="20">
+            <EditorPanel
+              selectedType={editor.selectedType}
+              editingGlobal={editor.editingGlobal}
+              subject={editor.currentTemplate.subject}
+              html={
+                editor.editingGlobal
+                  ? editor.globalTemplate.html
+                  : editor.currentTemplate.bodyHtml
+              }
+              onSubjectChange={editor.setSubject}
+              onHtmlChange={
+                editor.editingGlobal ? editor.setGlobalHtml : editor.setBodyHtml
+              }
+              variants={editor.currentTemplate.variants}
+              activeVariantId={editor.activeVariantId}
+              onVariantSelect={editor.selectVariant}
+              onVariantCreate={handleVariantCreate}
+              onVariantDuplicate={handleVariantDuplicate}
+              onVariantDelete={editor.deleteVariant}
+              onVariantRename={editor.renameVariant}
+              templateStyle={editor.templateStyle}
+              onStyleChange={editor.updateStyle}
+              editorRef={editorRef}
+            />
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
     </div>
   );
 }
