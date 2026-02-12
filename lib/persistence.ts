@@ -17,6 +17,18 @@ export interface PersistedData {
   activeVariantIds: Record<string, string>;
 }
 
+export interface Project {
+  id: string;
+  name: string;
+  data: PersistedData;
+}
+
+export interface ProjectListItem {
+  id: string;
+  name: string;
+  updatedAt: string;
+}
+
 export function isValidPersistedData(data: unknown): data is PersistedData {
   if (typeof data !== "object" || data === null) return false;
   const d = data as Record<string, unknown>;
@@ -32,5 +44,15 @@ export function isValidPersistedData(data: unknown): data is PersistedData {
     Array.isArray(d.customVariables) &&
     typeof d.activeVariantIds === "object" &&
     d.activeVariantIds !== null
+  );
+}
+
+export function isValidProject(data: unknown): data is Project {
+  if (typeof data !== "object" || data === null) return false;
+  const d = data as Record<string, unknown>;
+  return (
+    typeof d.id === "string" &&
+    typeof d.name === "string" &&
+    isValidPersistedData(d.data)
   );
 }

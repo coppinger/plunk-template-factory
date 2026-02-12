@@ -23,7 +23,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ProjectSwitcher } from "@/components/layout/project-switcher";
 import type { TemplateType, TemplateTypeInfo } from "@/lib/types";
+import type { ProjectListItem } from "@/lib/persistence";
 import { Copy, Download, Mail, LayoutTemplate, ChevronRight, FileDown, FileUp, LogOut } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
@@ -39,6 +41,13 @@ interface AppHeaderProps {
   onImportJson: (file: File) => void;
   user: User | null;
   onSignOut: () => void;
+  projects: ProjectListItem[];
+  activeProjectId: string | null;
+  onProjectSwitch: (id: string) => void;
+  onProjectCreate: (name: string) => Promise<string | null>;
+  onProjectRename: (id: string, name: string) => Promise<boolean>;
+  onProjectDuplicate: (id: string, name: string) => Promise<string | null>;
+  onProjectDelete: (id: string) => Promise<boolean>;
 }
 
 export function AppHeader({
@@ -53,6 +62,13 @@ export function AppHeader({
   onImportJson,
   user,
   onSignOut,
+  projects,
+  activeProjectId,
+  onProjectSwitch,
+  onProjectCreate,
+  onProjectRename,
+  onProjectDuplicate,
+  onProjectDelete,
 }: AppHeaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supabaseTypes = allTemplateTypes.filter((t) => t.category === "supabase-auth");
@@ -76,6 +92,18 @@ export function AppHeader({
       </div>
 
       <div className="mx-4 h-4 w-px bg-border/40" />
+
+      <ProjectSwitcher
+        projects={projects}
+        activeProjectId={activeProjectId}
+        onSwitch={onProjectSwitch}
+        onCreate={onProjectCreate}
+        onRename={onProjectRename}
+        onDuplicate={onProjectDuplicate}
+        onDelete={onProjectDelete}
+      />
+
+      <div className="mx-2 h-4 w-px bg-border/40" />
 
       {editingGlobal ? (
         <div className="flex items-center gap-2 h-7 px-2.5 rounded-md bg-primary/[0.08] border border-primary/20 text-[13px]">

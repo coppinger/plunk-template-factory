@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isValidPersistedData } from "@/lib/persistence";
 
-export async function GET() {
+// GET /api/templates?projectId=xxx — load template data for a project
+export async function GET(request: Request) {
   try {
     const supabase = await createClient();
     const {
@@ -13,9 +14,17 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const projectId = searchParams.get("projectId");
+
+    if (!projectId) {
+      return NextResponse.json({ error: "projectId is required" }, { status: 400 });
+    }
+
     const { data, error } = await supabase
-      .from("user_templates")
+      .from("projects")
       .select("data")
+      .eq("id", projectId)
       .eq("user_id", user.id)
       .single();
 
@@ -33,6 +42,7 @@ export async function GET() {
   }
 }
 
+// POST /api/templates?projectId=xxx — save template data for a project
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
@@ -44,18 +54,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const projectId = searchParams.get("projectId");
+
+    if (!projectId) {
+      return NextResponse.json({ error: "projectId is required" }, { status: 400 });
+    }
+
     const body = await request.json();
     if (!isValidPersistedData(body)) {
       return NextResponse.json({ error: "Invalid data" }, { status: 400 });
     }
 
-    const { error } = await supabase.from("user_templates").upsert(
-      {
-        user_id: user.id,
-        data: body,
-      },
-      { onConflict: "user_id" }
-    );
+    const { error } = await supabase
+      .from("projects")
+      .update({ data: body })
+      .eq("id", projectId)
+      .eq("user_id", user.id);
 
     if (error) {
       console.error("Failed to save templates:", error);
