@@ -6,6 +6,8 @@ import { TemplateSidebar } from "@/components/layout/template-sidebar";
 import { PreviewCanvas } from "@/components/layout/preview-canvas";
 import { EditorPanel } from "@/components/layout/editor-panel";
 import { CreateCustomTemplateDialog } from "@/components/layout/create-custom-template-dialog";
+import { ExportAllDialog } from "@/components/layout/export-all-dialog";
+import type { ExportFormat } from "@/components/layout/export-all-dialog";
 import { AuthDialog } from "@/components/layout/auth-dialog";
 import { useTemplateEditor } from "@/hooks/use-template-editor";
 import { useProjects } from "@/hooks/use-projects";
@@ -41,6 +43,7 @@ export default function Home() {
   const editorRef = useRef<ReactCodeMirrorRef>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showExportAllDialog, setShowExportAllDialog] = useState(false);
   const [previewMode, setPreviewMode] = useState<"html" | "text">("html");
 
   const handleCopy = useCallback(() => {
@@ -88,6 +91,19 @@ export default function Home() {
         toast.success("Templates imported successfully");
       } else {
         toast.error("Invalid template file");
+      }
+    },
+    [editor]
+  );
+
+  const handleExportAll = useCallback(
+    async (format: ExportFormat) => {
+      try {
+        await editor.exportAllTemplates(format);
+        setShowExportAllDialog(false);
+        toast.success("Templates exported as ZIP");
+      } catch {
+        toast.error("Failed to export templates");
       }
     },
     [editor]
@@ -224,6 +240,7 @@ export default function Home() {
         onExportPlainText={handleExportPlainText}
         activeVariantName={editor.activeVariant.name}
         allTemplateTypes={editor.allTemplateTypes}
+        onExportAll={() => setShowExportAllDialog(true)}
         onExportJson={handleExportJson}
         onImportJson={handleImportJson}
         user={auth.user}
@@ -313,6 +330,13 @@ export default function Home() {
           editor.addCustomTemplateType(info, variables);
           toast.success(`Created "${info.label}" template`);
         }}
+      />
+
+      <ExportAllDialog
+        open={showExportAllDialog}
+        onOpenChange={setShowExportAllDialog}
+        onExport={handleExportAll}
+        isExporting={editor.isExportingAll}
       />
     </div>
   );

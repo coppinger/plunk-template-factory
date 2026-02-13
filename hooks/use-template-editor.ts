@@ -430,6 +430,66 @@ export function useTemplateEditor(authState: AuthState, projectId: string | null
     URL.revokeObjectURL(url);
   }, [composedPlainText, editingGlobal, selectedType]);
 
+  // Export all templates as ZIP
+  const [isExportingAll, setIsExportingAll] = useState(false);
+
+  const exportAllTemplates = useCallback(
+    async (format: "html" | "text" | "both") => {
+      setIsExportingAll(true);
+      try {
+        const JSZip = (await import("jszip")).default;
+        const zip = new JSZip();
+        const folder = zip.folder("templates")!;
+
+        const includeHtml = format === "html" || format === "both";
+        const includeText = format === "text" || format === "both";
+
+        // Add base template
+        const baseHtml = applyStyleTokens(globalTemplate.html, templateStyle);
+        if (includeHtml) {
+          folder.file("_base-template.html", baseHtml);
+        }
+        if (includeText) {
+          const basePlain = await htmlToPlainText(baseHtml);
+          folder.file("_base-template.txt", basePlain);
+        }
+
+        // Process each template type and its variants
+        for (const tmpl of templates) {
+          const typeFolder = folder.folder(tmpl.type)!;
+
+          for (const variant of tmpl.variants) {
+            const slug = variant.name
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-|-$/g, "") || "unnamed";
+            const composed = composeEmail(globalTemplate.html, variant.bodyHtml, templateStyle);
+
+            if (includeHtml) {
+              typeFolder.file(`${slug}.html`, composed);
+            }
+            if (includeText) {
+              const plain = await htmlToPlainText(composed);
+              typeFolder.file(`${slug}.txt`, plain);
+            }
+          }
+        }
+
+        const blob = await zip.generateAsync({ type: "blob" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const date = new Date().toISOString().split("T")[0];
+        a.download = `plunk-templates-${date}.zip`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } finally {
+        setIsExportingAll(false);
+      }
+    },
+    [globalTemplate.html, templateStyle, templates]
+  );
+
   const zoomIn = useCallback(() => {
     setZoom((prev) => Math.min(2, Math.round((prev + 0.1) * 10) / 10));
   }, []);
@@ -539,5 +599,8 @@ export function useTemplateEditor(authState: AuthState, projectId: string | null
     // JSON export/import
     exportJson,
     importJson,
+    // Export all as ZIP
+    exportAllTemplates,
+    isExportingAll,
   };
 }

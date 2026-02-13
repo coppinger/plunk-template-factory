@@ -20,13 +20,14 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ProjectSwitcher } from "@/components/layout/project-switcher";
 import type { TemplateType, TemplateTypeInfo } from "@/lib/types";
 import type { ProjectListItem } from "@/lib/persistence";
-import { Copy, Download, Mail, LayoutTemplate, ChevronRight, ChevronDown, FileDown, FileUp, LogOut, FileText, FileCode } from "lucide-react";
+import { Copy, Download, Mail, LayoutTemplate, ChevronRight, ChevronDown, FileDown, FileUp, LogOut, FileText, FileCode, FolderArchive } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
 interface AppHeaderProps {
@@ -39,6 +40,7 @@ interface AppHeaderProps {
   onExportPlainText: () => void;
   activeVariantName?: string;
   allTemplateTypes: TemplateTypeInfo[];
+  onExportAll: () => void;
   onExportJson: () => void;
   onImportJson: (file: File) => void;
   user: User | null;
@@ -62,6 +64,7 @@ export function AppHeader({
   onExportPlainText,
   activeVariantName,
   allTemplateTypes,
+  onExportAll,
   onExportJson,
   onImportJson,
   user,
@@ -195,6 +198,11 @@ export function AppHeader({
             <DropdownMenuItem onClick={onExportPlainText}>
               <FileText className="h-3.5 w-3.5 mr-2" />
               Export Plain Text
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={onExportAll}>
+              <FolderArchive className="h-3.5 w-3.5 mr-2" />
+              Export All Templates...
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
