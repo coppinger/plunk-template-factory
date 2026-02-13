@@ -2,6 +2,14 @@
   "name": "plunk-template-factory",
   "version": "0.1.0",
   "private": true,
+  "description": "Visual editor for Supabase Auth email templates",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/coppinger/plunk-template-factory"
+  },
+  "homepage": "https://plunktemplates.com",
+  "keywords": ["supabase", "email-templates", "html-email", "nextjs"],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
