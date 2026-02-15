@@ -270,7 +270,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               asChild
             >
               <a
-                href="https://github.com/nicholasoxford/plunk-template-factory"
+                href="https://github.com/coppinger/plunk-template-factory"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -421,7 +421,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <a
-              href="https://github.com/nicholasoxford/plunk-template-factory"
+              href="https://github.com/coppinger/plunk-template-factory"
               target="_blank"
               rel="noopener noreferrer"
               className="transition-colors hover:text-foreground"
