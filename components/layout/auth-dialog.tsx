@@ -17,9 +17,10 @@ import { Mail } from "lucide-react";
 interface AuthDialogProps {
   onSignIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   onSignUp: (email: string, password: string) => Promise<{ error: Error | null }>;
+  onClose?: () => void;
 }
 
-export function AuthDialog({ onSignIn, onSignUp }: AuthDialogProps) {
+export function AuthDialog({ onSignIn, onSignUp, onClose }: AuthDialogProps) {
   const [tab, setTab] = useState<string>("sign-in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -57,11 +58,11 @@ export function AuthDialog({ onSignIn, onSignUp }: AuthDialogProps) {
   };
 
   return (
-    <Dialog open modal>
+    <Dialog open onOpenChange={(open) => { if (!open && onClose) onClose(); }}>
       <DialogContent
-        showCloseButton={false}
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(e) => e.preventDefault()}
+        showCloseButton={!!onClose}
+        onPointerDownOutside={(e) => { if (!onClose) e.preventDefault(); }}
+        onEscapeKeyDown={(e) => { if (!onClose) e.preventDefault(); }}
         className="sm:max-w-[420px]"
       >
         <DialogHeader>
