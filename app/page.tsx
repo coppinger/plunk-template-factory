@@ -9,6 +9,7 @@ import { CreateCustomTemplateDialog } from "@/components/layout/create-custom-te
 import { ExportAllDialog } from "@/components/layout/export-all-dialog";
 import type { ExportFormat } from "@/components/layout/export-all-dialog";
 import { AuthDialog } from "@/components/layout/auth-dialog";
+import { LandingPage } from "@/components/layout/landing-page";
 import { useTemplateEditor } from "@/hooks/use-template-editor";
 import { useProjects } from "@/hooks/use-projects";
 import { useAuth } from "@/hooks/use-auth";
@@ -45,6 +46,7 @@ export default function Home() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showExportAllDialog, setShowExportAllDialog] = useState(false);
   const [previewMode, setPreviewMode] = useState<"html" | "text">("html");
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
 
   const handleCopy = useCallback(() => {
     editor.copyHtml();
@@ -202,12 +204,19 @@ export default function Home() {
     );
   }
 
-  // Auth gate
+  // Auth gate — show landing page with optional auth dialog
   if (!auth.isAuthenticated) {
     return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <AuthDialog onSignIn={auth.signIn} onSignUp={auth.signUp} />
-      </div>
+      <>
+        <LandingPage onGetStarted={() => setShowAuthDialog(true)} />
+        {showAuthDialog && (
+          <AuthDialog
+            onSignIn={auth.signIn}
+            onSignUp={auth.signUp}
+            onClose={() => setShowAuthDialog(false)}
+          />
+        )}
+      </>
     );
   }
 
